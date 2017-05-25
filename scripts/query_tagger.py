@@ -1,10 +1,9 @@
 from data_loader import load_data_dict
-from data_loader import HashVal
+import hashlib
 import unicodedata
 
 class QueryTagger(object):
     def __init__(self, brand_dict_file, cat_dict_file, store_dict_file):
-        self.hash_func  = HashVal()
         self.brand_dict = load_data_dict(brand_dict_file)
         self.cat_dict   = load_data_dict(cat_dict_file)
         self.store_dict = load_data_dict(store_dict_file)
@@ -19,7 +18,7 @@ class QueryTagger(object):
                       str_token = unicodedata.normalize('NFKD', dim).encode('ascii', 'ignore')
                    else:
                        str_token = dim
-                   hash_val  = self.hash_func.hash(str_token.lower())
+                   hash_val  = hashlib.sha1(str_token.lower()).digest()
                    print hash_val
                    dim_id = dimension_dict[hash_val]
                    ids.append(dim_id)
