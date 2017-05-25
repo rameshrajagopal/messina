@@ -1,7 +1,7 @@
 import simstring
 import unicodecsv as csv
 import unicodedata
-import hashlib
+from custom_hashlib import sha1
 
 def load_data_dict(csv_file):
     name_to_id = {}
@@ -11,7 +11,7 @@ def load_data_dict(csv_file):
             bcs_id = int(row[0])
             token = row[1]
             str_token = unicodedata.normalize('NFKD', token).encode('ascii', 'ignore')
-            name_to_id[hashlib.sha1(str_token.lower()).hexdigest()] = bcs_id
+            name_to_id[sha1(str_token.lower())] = bcs_id
     return name_to_id
 
 def load_data(csv_file, db_file):

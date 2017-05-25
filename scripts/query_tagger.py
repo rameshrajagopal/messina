@@ -1,5 +1,5 @@
 from data_loader import load_data_dict
-import hashlib
+from custom_hashlib import sha1
 import unicodedata
 
 class QueryTagger(object):
@@ -18,7 +18,7 @@ class QueryTagger(object):
                       str_token = unicodedata.normalize('NFKD', dim).encode('ascii', 'ignore')
                    else:
                        str_token = dim
-                   hash_val  = hashlib.sha1(str_token.lower()).digest()
+                   hash_val  = sha1(str_token.lower())
                    print hash_val
                    dim_id = dimension_dict[hash_val]
                    ids.append(dim_id)
