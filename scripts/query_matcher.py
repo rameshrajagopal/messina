@@ -25,7 +25,7 @@ class CategoryMatcher(Matcher):
 
 class StoreMatcher(Matcher):
     def __init__(self, db_file):
-        super(StoreMatcher, self).__init__(db_file, COSINE , threshold=1.)
+        super(StoreMatcher, self).__init__(db_file, COSINE, threshold=0.8)
 
 class QueryMatcher(object):
     def __init__(self, brand_file, cat_file, store_file):

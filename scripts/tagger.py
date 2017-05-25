@@ -1,5 +1,6 @@
 from query_tagger import QueryTagger
 from query_matcher import QueryMatcher
+import json
 
 class Tagger(object):
     def __init__(self, brand_path, cat_path, store_path):
@@ -28,7 +29,8 @@ class Tagger(object):
         cat_ids = []
         brand_ids = []
         store_ids = []
-        for token in self.ngrams(title):
+        ngrams = self.ngrams(title)
+        for token in ngrams:
             if token:
                 values = self.tagToken(token)
                 brand_ids += values[0]
@@ -40,9 +42,39 @@ class Tagger(object):
                     words_to_category[token] = values[1]
                 if values[2]:
                     words_to_brand[token] = values[2]
-        print words_to_brand
-        print words_to_category
-        print words_to_store
+        removing_words = []
+        result_dict = {}
+        b_ids = []
+        c_ids = []
+        s_ids = []
+        for item in words_to_brand.iteritems():
+            key = item[0]
+            value = set(item[1])
+            removing_words.append(key)
+            matches = {}
+            matches['matches'] = [e for e in value]
+            matches['token'] = key
+            b_ids.append(matches)
+        result_dict['brands'] = b_ids
+        for item in words_to_category.iteritems():
+            key = item[0]
+            value = set(item[1])
+            if removing_words.count(key) == 0:
+                matches = {}
+                matches['matches'] = [e for e in value]
+                matches['token'] = key
+                c_ids.append(matches)
+                removing_words.append(key)
+        result_dict['categories'] = c_ids
+        for item in words_to_store.iteritems():
+            key = item[0]
+            value = set(item[1])
+            matches = {}
+            matches['matches'] = [e for e in value]
+            matches['token'] = key
+            s_ids.append(matches)
+        result_dict['stores'] = s_ids
+        return result_dict
         
 
 
