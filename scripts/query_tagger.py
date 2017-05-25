@@ -13,14 +13,12 @@ class QueryTagger(object):
         ids = []
         if dimensions:
             for dim in dimensions:
-                print dim
                 try:
                    if type(dim) == unicode:
                       str_token = unicodedata.normalize('NFKD', dim).encode('ascii', 'ignore')
                    else:
                        str_token = dim
-                   hash_val  = self.hash_func.hash(str_token.lower())
-                   print hash_val
+                   hash_val  = self.hash_func.getHash(str_token.lower())
                    dim_id = dimension_dict[hash_val]
                    ids.append(dim_id)
                 except KeyError as e:
