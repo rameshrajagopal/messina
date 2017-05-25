@@ -56,6 +56,11 @@ class Tagger(object):
             matches['token'] = key
             b_ids.append(matches)
         result_dict['brands'] = b_ids
+        mod_query = []
+        for item in ngrams:
+            if item:
+                if removing_words.count(item) == 0:
+                   mod_query.append(item)
         for item in words_to_category.iteritems():
             key = item[0]
             value = set(item[1])
@@ -74,7 +79,9 @@ class Tagger(object):
             matches['token'] = key
             s_ids.append(matches)
         result_dict['stores'] = s_ids
-        return result_dict
+        suggestion = " ".join(item for item in mod_query)
+        print suggestion
+        return (result_dict, suggestion)
         
 
 

@@ -19,11 +19,12 @@ def tag():
     q = request.query['q']
     try:
         tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
-        result_dict = tagger.tag(q)
+        (result_dict, suggestion) = tagger.tag(q)
         api_response = {}
         api_response['status_code'] = 200
         api_response['message'] = "ok"
         api_response['tags'] = result_dict
+        api_response['query'] = suggestion
         response.content_type = "application/json; charset=UTF-8"
         return json.dumps(api_response)
     except:
