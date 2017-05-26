@@ -16,12 +16,18 @@ function populateProducts (products) {
   });
 }
 
-function populateStatus (query, count) {
+function populateStatus (query, count, tags) {
   $("#sidebar").empty();
   $("#sidebar").append(
     '<p> Matched '+ count +'<br><br>'+
     'Refined Query:'+ query.replace(/\&/g, '<br>&nbsp;') +
-    '</p>'
+    '</p><br><br>'
+  );
+
+  // Dumping the tags from /api/tags
+  $('#sidebar').append('<pre>'+
+    JSON.stringify(tags) +
+    '</pre>'
   );
 }
 
@@ -77,7 +83,7 @@ function getRefinedProducts(tags, query) {
   $.getJSON(ixSearchUrl + queryStr, null, function (resp) {
     console.log("products: ", resp);
     populateProducts(resp.result.products, resp.result.count);
-    populateStatus(queryStr, resp.result.count)
+    populateStatus(queryStr, resp.result.count, tags);
   });
 }
 
