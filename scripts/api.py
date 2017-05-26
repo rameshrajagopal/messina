@@ -6,6 +6,8 @@ from tagger import Tagger
 
 from bottle import request, run, route, abort, response
 
+tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
+
 @route('/api/status')
 def status():
     return {'status': 'online', 'servertime': time.time()}
@@ -18,7 +20,6 @@ def echo(text):
 def tag():
     q = request.query['q']
     try:
-        tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
         (result_dict, suggestion) = tagger.tag(q)
         api_response = {}
         api_response['status_code'] = 200

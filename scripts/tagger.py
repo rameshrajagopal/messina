@@ -2,13 +2,19 @@ from query_tagger import QueryTagger
 from query_matcher import QueryMatcher
 import json
 
+PREPOSITIONS = ["in", "on", "the", "a", "an", "under", "at"]
+
 class Tagger(object):
     def __init__(self, brand_path, cat_path, store_path):
         self.tagger = QueryTagger(brand_path + "/brands.csv", cat_path + "/categories.csv", store_path + "/stores.csv")
         self.matcher = QueryMatcher(brand_path + "/db/brands.db", cat_path + "/db/categories.db", store_path + "/db/stores.db")
 
     def tokenize(self, title):
-        return [token.strip(" \t\n\r").lower() for token in title.split(" ") if token]
+        tokens = [token.strip(" \t\n\r") for token in title.split(" ") if token]
+        for e in PREPOSITIONS:
+            if tokens.count(e) == 1:
+                tokens.remove(e)
+        return tokens
 
     def ngrams(self, title):
         title_tokens = self.tokenize(title)
@@ -25,8 +31,11 @@ class Tagger(object):
         return values
 
     def cut_token(self, token, title):
+        #print "cut: ", token, ", title=", title
         idx = title.find(token)
-        if idx == 0:
+        if idx == -1:
+            return title
+        elif idx == 0:
             return title[len(token):]
         else:
             return title[0:idx] + title[idx+len(token):]
@@ -45,6 +54,7 @@ class Tagger(object):
             if values:
                 brand_to_ids[token] = [e for e in set(values)]
                 mod_title = self.cut_token(token, mod_title)
+                #print mod_title
         return (brand_to_ids, mod_title.strip())
 
     def getMatches(self, word_to_ids):
@@ -57,8 +67,11 @@ class Tagger(object):
         return c_ids
 
     def tag(self, title):
+        title = title.lower()
         (brand_to_ids, mod_title) = self.fullMatches(title, self.matcher.exactBrandMatches, self.tagger.tagBrand)
+        #print mod_title
         (cat_to_ids, mod_title)   = self.fullMatches(mod_title, self.matcher.exactCategoryMatches, self.tagger.tagCategory)
+        #print mod_title
         words_to_category = {}
         words_to_brand = {}
         words_to_store = {}
@@ -84,9 +97,8 @@ class Tagger(object):
         result_dict['brands'] = b_ids
         result_dict['categories'] = self.getMatches(cat_to_ids) + self.getMatches(words_to_category)
         result_dict['stores'] = self.getMatches(words_to_store)
-        suggestion = mod_title
+        #print mod_title
+        suggestion = " ".join(e for e in self.tokenize(mod_title))
+        #print suggestion
         return (result_dict, suggestion)
         
-
-
-

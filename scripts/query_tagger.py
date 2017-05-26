@@ -20,7 +20,7 @@ class QueryTagger(object):
                        str_token = dim
                    hash_val  = self.hash_func.getHash(str_token.lower())
                    dim_id = dimension_dict[hash_val]
-                   ids.append(dim_id)
+                   ids += dim_id
                 except KeyError as e:
                     pass
         return ids

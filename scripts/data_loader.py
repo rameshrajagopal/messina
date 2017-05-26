@@ -19,7 +19,11 @@ def load_data_dict(csv_file):
             bcs_id = int(row[0])
             token = row[1]
             str_token = unicodedata.normalize('NFKD', token).encode('ascii', 'ignore')
-            name_to_id[hash_v.getHash(str_token.lower())] = bcs_id
+            hash_key = hash_v.getHash(str_token.lower());
+            if name_to_id.has_key(hash_key):
+                name_to_id[hash_key] += [bcs_id]
+            else:
+                name_to_id[hash_key] = [bcs_id]
     return name_to_id
 
 def load_data(csv_file, db_file):
