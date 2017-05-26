@@ -31,13 +31,17 @@ class Tagger(object):
         else:
             return title[0:idx] + title[idx+len(token):]
 
-    def fullMatches(self, title):
+    def tagDimension(self, token, dimensionMatches, dimensionTag):
+        matches = dimensionMatches(token)
+        values  = dimensionTag(matches)
+        return values
+
+    def fullMatches(self, title, dimensionMatches, dimensionTag):
         mod_title = title
         ngrams   = self.ngrams(title)
         brand_to_ids = {}
         for token in ngrams:
-            brand_matches = self.matcher.exactBrandMatches(token)
-            values = self.tagger.tagBrand(brand_matches)
+            values = self.tagDimension(token, dimensionMatches, dimensionTag)
             if values:
                 brand_to_ids[token] = [e for e in set(values)]
                 mod_title = self.cut_token(token, mod_title)
@@ -53,7 +57,8 @@ class Tagger(object):
         return c_ids
 
     def tag(self, title):
-        (brand_to_ids, mod_title) = self.fullMatches(title)
+        (brand_to_ids, mod_title) = self.fullMatches(title, self.matcher.exactBrandMatches, self.tagger.tagBrand)
+        (cat_to_ids, mod_title)   = self.fullMatches(mod_title, self.matcher.exactCategoryMatches, self.tagger.tagCategory)
         words_to_category = {}
         words_to_brand = {}
         words_to_store = {}
@@ -77,7 +82,7 @@ class Tagger(object):
         b_ids = self.getMatches(brand_to_ids)
         b_ids += self.getMatches(words_to_brand)
         result_dict['brands'] = b_ids
-        result_dict['categories'] = self.getMatches(words_to_category)
+        result_dict['categories'] = self.getMatches(cat_to_ids) + self.getMatches(words_to_category)
         result_dict['stores'] = self.getMatches(words_to_store)
         suggestion = mod_title
         return (result_dict, suggestion)

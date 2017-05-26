@@ -20,8 +20,8 @@ class BrandMatcher(Matcher):
         super(BrandMatcher, self).__init__(db_file, COSINE, threshold)
 
 class CategoryMatcher(Matcher):
-    def __init__(self, db_file):
-        super(CategoryMatcher, self).__init__(db_file, COSINE , threshold=0.8)
+    def __init__(self, db_file, threshold=1.):
+        super(CategoryMatcher, self).__init__(db_file, COSINE , threshold)
 
 class StoreMatcher(Matcher):
     def __init__(self, db_file):
@@ -30,9 +30,10 @@ class StoreMatcher(Matcher):
 class QueryMatcher(object):
     def __init__(self, brand_file, cat_file, store_file):
         self.brand_db = BrandMatcher(brand_file, 0.7)
-        self.cat_db   = CategoryMatcher(cat_file)
+        self.cat_db   = CategoryMatcher(cat_file, 0.8)
         self.store_db = StoreMatcher(store_file)
         self.full_brand_db = BrandMatcher(brand_file)
+        self.full_cat_db = CategoryMatcher(cat_file)
 
     def storeMatches(self, token):
         return self.store_db.match(token)
@@ -45,6 +46,9 @@ class QueryMatcher(object):
 
     def exactBrandMatches(self, token):
         return self.full_brand_db.match(token)
+
+    def exactCategoryMatches(self, token):
+        return self.full_cat_db.match(token)
 
     def matches(self, token):
         return (self.brand_db.match(token), self.cat_db.match(token),
