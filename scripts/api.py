@@ -26,6 +26,7 @@ def tag():
         api_response['tags'] = result_dict
         api_response['query'] = suggestion
         response.content_type = "application/json; charset=UTF-8"
+        response.headers['Access-Control-Allow-Origin'] = "*"
         return json.dumps(api_response)
     except:
         abort(500, traceback.format_exc())
