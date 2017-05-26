@@ -25,6 +25,9 @@ class QueryTagger(object):
                     pass
         return ids
 
+    def tagBrand(self, brands):
+        return self.getIds(brands, self.brand_dict)
+
     def tag(self, brands, categories, stores):
         brand_ids = self.getIds(brands, self.brand_dict)
         cat_ids = self.getIds(categories, self.cat_dict)

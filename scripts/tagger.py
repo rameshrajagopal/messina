@@ -13,7 +13,9 @@ class Tagger(object):
     def ngrams(self, title):
         title_tokens = self.tokenize(title)
         num_tokens = len(title_tokens)
-        return [" ".join(title_tokens[j:i+1]) for i in range(num_tokens) for j in range(num_tokens)]
+        tokens = [" ".join(title_tokens[j:i+1]) for i in range(num_tokens) for j in range(num_tokens)]
+        tokens = [token for token in tokens if token]
+        return sorted(tokens, key=lambda token: len(token))
 
     def tagToken(self, token):
         brand_matches = self.matcher.brandMatches(token)
@@ -22,14 +24,43 @@ class Tagger(object):
         values = self.tagger.tag(brand_matches, cat_matches, store_matches)
         return values
 
+    def cut_token(self, token, title):
+        idx = title.find(token)
+        if idx == 0:
+            return title[len(token):]
+        else:
+            return title[0:idx] + title[idx+len(token):]
+
+    def fullMatches(self, title):
+        mod_title = title
+        ngrams   = self.ngrams(title)
+        brand_to_ids = {}
+        for token in ngrams:
+            brand_matches = self.matcher.exactBrandMatches(token)
+            values = self.tagger.tagBrand(brand_matches)
+            if values:
+                brand_to_ids[token] = [e for e in set(values)]
+                mod_title = self.cut_token(token, mod_title)
+        return (brand_to_ids, mod_title.strip())
+
+    def getMatches(self, word_to_ids):
+        c_ids = []
+        for item in word_to_ids.iteritems():
+            matches = {}
+            matches['matches'] = item[1]
+            matches['token'] = item[0]
+            c_ids.append(matches)
+        return c_ids
+
     def tag(self, title):
+        (brand_to_ids, mod_title) = self.fullMatches(title)
         words_to_category = {}
         words_to_brand = {}
         words_to_store = {}
         cat_ids = []
         brand_ids = []
         store_ids = []
-        ngrams = self.ngrams(title)
+        ngrams = self.ngrams(mod_title)
         for token in ngrams:
             if token:
                 values = self.tagToken(token)
@@ -37,50 +68,18 @@ class Tagger(object):
                 cat_ids   += values[1]
                 store_ids += values[2]
                 if values[0]:
-                    words_to_brand[token] = values[0]
+                    words_to_brand[token] = [e for e in set(values[0])]
                 if values[1]:
-                    words_to_category[token] = values[1]
+                    words_to_category[token] = [e for e in set(values[1])]
                 if values[2]:
-                    words_to_brand[token] = values[2]
-        removing_words = []
+                    words_to_brand[token] = [e for e in set(values[2])]
         result_dict = {}
-        b_ids = []
-        c_ids = []
-        s_ids = []
-        for item in words_to_brand.iteritems():
-            key = item[0]
-            value = set(item[1])
-            removing_words.append(key)
-            matches = {}
-            matches['matches'] = [e for e in value]
-            matches['token'] = key
-            b_ids.append(matches)
+        b_ids = self.getMatches(brand_to_ids)
+        b_ids += self.getMatches(words_to_brand)
         result_dict['brands'] = b_ids
-        mod_query = []
-        for item in ngrams:
-            if item:
-                if removing_words.count(item) == 0:
-                   mod_query.append(item)
-        for item in words_to_category.iteritems():
-            key = item[0]
-            value = set(item[1])
-            if removing_words.count(key) == 0:
-                matches = {}
-                matches['matches'] = [e for e in value]
-                matches['token'] = key
-                c_ids.append(matches)
-                removing_words.append(key)
-        result_dict['categories'] = c_ids
-        for item in words_to_store.iteritems():
-            key = item[0]
-            value = set(item[1])
-            matches = {}
-            matches['matches'] = [e for e in value]
-            matches['token'] = key
-            s_ids.append(matches)
-        result_dict['stores'] = s_ids
-        suggestion = " ".join(item for item in mod_query)
-        print suggestion
+        result_dict['categories'] = self.getMatches(words_to_category)
+        result_dict['stores'] = self.getMatches(words_to_store)
+        suggestion = mod_title
         return (result_dict, suggestion)
         
 
