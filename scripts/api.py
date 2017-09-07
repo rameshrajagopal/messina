@@ -2,11 +2,13 @@
 import sys, traceback, time
 import json
 import numpy as np
-from tagger import Tagger
+#from tagger import Tagger
+from toplevelclassifier import CategoryTagger
 
 from bottle import request, run, route, abort, response, static_file
 
-tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
+#tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
+tagger = CategoryTagger()
 
 @route('/')
 def index():
