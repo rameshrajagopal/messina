@@ -18,3 +18,14 @@ class HttpClient(object):
         except Exception as e:
             print e
         return ""
+
+    def postQuery(self, url, headers, params):
+        try:
+            print url, " ", headers, " ", json.dumps(params)
+            res = requests.post(url, headers = headers, data = json.dumps(params))
+            if res.status_code != HTTP_SUCCESS:
+                raise Exception("Api Error " + str(res.status_code))
+            return res.json()
+        except Exception as e:
+            print e
+        return ""

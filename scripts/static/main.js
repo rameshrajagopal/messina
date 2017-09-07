@@ -1,5 +1,5 @@
-//var baseUrl = "http://192.168.0.146:8080";
-var baseUrl = "";
+var baseUrl = "http://192.168.0.152:8080";
+//var baseUrl = "";
 var app_key = "tSAOAAgliQChZfKp7xSQ6uJmOtePqiL1";
 var ixSearchUrl = "https://api.indix.com/v2.1/search?app_key="+app_key;
 
@@ -10,8 +10,10 @@ function populateProducts (products) {
       '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
       '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
-      '<span style="font-color: red; font-size: 13px;">from $'+ product.minSalePrice+' - '+ product.maxSalePrice +'</span><br>'+
-      'Offers '+ product.offersCount + ' in '+ product.storesCount +' stores </p>'+
+      '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
+      '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
+      '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
+      'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
       '</div>'
     );
   });
@@ -93,12 +95,12 @@ function query () {
   var q = $("#query").val();
   console.log(q)
   //getProducts(q);
-  $.getJSON(baseUrl+"/api/tag", {q}, function (resp) {
-    console.log("Tags: ", resp.tags);
-    getRefinedProducts(resp.tags, resp.query);
-    getBrands(resp.tags.brands);
-    getStores(resp.tags.stores);
-    getCategories(resp.tags.categories);
+  $.getJSON(baseUrl+"/api/products", {q}, function (resp) {
+    populateProducts(resp.products, resp.count)
+//    getRefinedProducts(resp);
+//    getBrands(resp.tags.brands);
+//    getStores(resp.tags.stores);
+//    getCategories(resp.tags.categories);
   })
 
 }
