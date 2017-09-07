@@ -54,6 +54,10 @@ def tag():
         res = data_collector.post(q)
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
+        sort_by = request.params.get('sort_by')
+        if sort_by:
+            sorted_products = sorted(res['products'], key=lambda k: k['aggregatedRatings'][sort_by], reverse=True)
+            res['products'] = sorted_products
         return res
     except:
         abort(500, traceback.format_exc())

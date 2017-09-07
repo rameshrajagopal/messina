@@ -93,15 +93,25 @@ function getRefinedProducts(tags, query) {
 
 function query () {
   var q = $("#query").val();
+  var sortBy = $('select[name="sort_by"]').val();
+
   console.log(q)
   //getProducts(q);
-  $.getJSON(baseUrl+"/api/products", {q}, function (resp) {
-    populateProducts(resp.products, resp.count)
-//    getRefinedProducts(resp);
-//    getBrands(resp.tags.brands);
-//    getStores(resp.tags.stores);
-//    getCategories(resp.tags.categories);
-  })
+  var searchText = $('.btn-search').text();
+  $('.btn-search').text('Searching..');
+  $.getJSON(baseUrl+"/api/products",
+    {
+      q: q,
+      sort_by: sortBy
+    },
+    function (resp) {
+      $('.btn-search').text(searchText);
+      populateProducts(resp.products, resp.count)
+  //    getRefinedProducts(resp);
+  //    getBrands(resp.tags.brands);
+  //    getStores(resp.tags.stores);
+  //    getCategories(resp.tags.categories);
+    })
 
 }
 

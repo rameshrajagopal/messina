@@ -22,7 +22,12 @@
         <div class="col-12 col-md-9">
           <div class="jumbotron form-inline my-2 my-lg-0">
               <input class="form-control mr-sm-2" type="text" placeholder="Search" id="query">
-              <button class="btn btn-outline-success my-2 my-sm-0" onclick="query()">Search</button>
+              <select class="form-control" name="sort_by">
+                <option selected disabled>Sort By</option>
+                <option value="ratingCount">Rating Count</option>
+                <option value="ratingValue">Rating Value</option>
+              </select>
+              <button class="btn btn-outline-success btn-search my-2 my-sm-0" onclick="query()" style="margin-left: 10px;">Search</button>
           </div>
           <div class="row" id="products">
           </div>
