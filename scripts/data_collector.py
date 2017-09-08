@@ -5,26 +5,8 @@ import time
 from http_client import HttpClient
 from query import ApiQuery
 
-def process_response(response, csv_writer):
-    for p in response['result']['products']:
-        csv_writer.writerow((p['title'], p['categoryId'], p['brandId']))
-
-def collect_data(keywords_file, out_file):
-    api = ApiQuery("http", "scarlet.prod.platform.io", "/v2/summary/products",
-            "9cd8ee4460ccc7de53d75c6b6b111ef2", "indix.com", "US", "10")
-    http_client = HttpClient()
-    csv_out_file = open(out_file, "wb")
-    csv_writer = csv.writer(csv_out_file, delimiter=',')
-    with open(keywords_file, "rb") as f:
-        csv_reader = csv.reader(f)
-        for row in csv_reader:
-            for search_term in row:
-                process_response(json.loads(http_client.query(api.getSearchQuery(search_term))), csv_writer)
-                time.sleep(1)
-    csv_out_file.close()
-
 class DataCollector(object):
-    def __init__(self, select_clause, page_size, country_code, url = "http://10.1.102.105/products/search2"):
+    def __init__(self, select_clause, page_size, country_code, url = "http://gatsby.prod.platform.io/products/search2"):
         self.url = url
         self.headers = {'Content-type' : 'application/json', 'Accept' : 'application/json'}
         self.payload = {"select" : select_clause, 
