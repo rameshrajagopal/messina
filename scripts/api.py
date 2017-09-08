@@ -21,7 +21,7 @@ def index():
 
 @route('/static/<filename:path>')
 def static(filename):
-    return static_file(filename, root='/home/indix/ind9/mesina/scripts/static')
+    return static_file(filename, root='./static')
 
 @route('/api/status')
 def status():

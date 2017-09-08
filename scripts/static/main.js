@@ -92,18 +92,20 @@ function getRefinedProducts(tags, query) {
 
 
 function query () {
+  var searchText = $('.btn-search').text();
+  $('.btn-search').text('Searching..');
+
   var q = $("#query").val();
   var sortBy = $('select[name="sort_by"]').val();
 
+  var params = {
+    q: q,
+    sort_by: sortBy
+  };
+
   console.log(q)
   //getProducts(q);
-  var searchText = $('.btn-search').text();
-  $('.btn-search').text('Searching..');
-  $.getJSON(baseUrl+"/api/products",
-    {
-      q: q,
-      sort_by: sortBy
-    },
+  $.getJSON(baseUrl+"/api/products", params,
     function (resp) {
       $('.btn-search').text(searchText);
       populateProducts(resp.products, resp.count)
