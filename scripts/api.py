@@ -6,15 +6,18 @@ import numpy as np
 from toplevelclassifier import CategoryTagger
 
 from bottle import request, run, route, abort, response, static_file
-from data_collector import DataCollector
+from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery
 from ranking_model import RankingModel
 
 #tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
 tagger = CategoryTagger()
 select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
-page_size = 100
+page_size = 500
 country_code = 356
-data_collector = DataCollector(select_clause, page_size, country_code)
+gatsby_query  = ProductGatsbyQuery(select_clause, page_size, country_code)
+api_query = ProductApiQuery("http", "scarlet.prod.platform.io", "/v2.1/search", "IN", 50)
+gatsby_data_collector = DataCollector(gatsby_query)
+api_data_collector = DataCollector(api_query)
 ranking_model = RankingModel()
 
 @route('/')
@@ -53,13 +56,16 @@ def tag():
 def tag():
     q = request.query['q']
     try:
-        res = data_collector.post(q)
+        sort_by = request.params.get('sort_by')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
-        sort_by = request.params.get('sort_by')
         if sort_by:
+            res = gatsby_data_collector.post(q)
             sorted_products = ranking_model.process(res['products'])
             res['products'] = sorted_products
+        else:
+            api_res = api_data_collector.get(q)
+            res = api_res['result']
         return res
     except:
         abort(500, traceback.format_exc())
