@@ -7,13 +7,15 @@ from toplevelclassifier import CategoryTagger
 
 from bottle import request, run, route, abort, response, static_file
 from data_collector import DataCollector
+from ranking_model import RankingModel
 
 #tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
 tagger = CategoryTagger()
 select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
-page_size = 500
+page_size = 100
 country_code = 356
 data_collector = DataCollector(select_clause, page_size, country_code)
+ranking_model = RankingModel()
 
 @route('/')
 def index():
@@ -56,7 +58,7 @@ def tag():
         response.headers['Access-Control-Allow-Origin'] = "*"
         sort_by = request.params.get('sort_by')
         if sort_by:
-            sorted_products = sorted(res['products'], key=lambda k: k['aggregatedRatings'][sort_by], reverse=True)
+            sorted_products = ranking_model.process(res['products'])
             res['products'] = sorted_products
         return res
     except:

@@ -10,7 +10,8 @@ class DataCollector(object):
         self.url = url
         self.headers = {'Content-type' : 'application/json', 'Accept' : 'application/json'}
         self.payload = {"select" : select_clause, 
-                "geo": country_code, "traceId" : 1122334455, "offersWhere" : "availability == 0 && timestamp > 1503652020000",
+                "geo": country_code, "traceId" : 1122334455, "offersWhere" : "availability == 0 && timestamp > 1502686486000",
+                "productsWhere" : "storeId == 2776 || storeId == 4919 || storeId == 6078 || storeId == 5119 || storeId == 4443",
                 "productPageSize" : page_size}
                 
         self.http_client = HttpClient()
