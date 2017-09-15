@@ -64,5 +64,4 @@ def tag():
         abort(500, traceback.format_exc())
 
 if __name__=='__main__':
-    run(host='0.0.0.0', port=9090)
-#    run(host='0.0.0.0', port=8080, debug=True)
+    run(host='0.0.0.0', port=8080)
