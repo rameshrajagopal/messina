@@ -59,17 +59,18 @@ def tag():
         sort_by = request.params.get('sort_by')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
-        if sort_by:
-            res = gatsby_data_collector.post(q)
-            sorted_products = ranking_model.process(res['products'])
-            res['products'] = sorted_products
-        else:
-            api_res = api_data_collector.get(q)
-            res = api_res['result']
+        gatsby_res = gatsby_data_collector.post(q)
+        sorted_products = ranking_model.process(gatsby_res['products'])
+        gatsby_res['products'] = sorted_products
+        api_res = api_data_collector.get(q)
+        res = {
+            'api': api_res['result'],
+            'gatsby': gatsby_res
+        }
         return res
     except:
         abort(500, traceback.format_exc())
 
 if __name__=='__main__':
 #    run(host='0.0.0.0', port=8080)
-    run(host='192.168.0.152', port=8080)
+    run(host='0.0.0.0', port=8080, debug=True)
