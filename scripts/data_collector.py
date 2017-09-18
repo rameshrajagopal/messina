@@ -33,8 +33,12 @@ class ProductGatsbyQuery(object):
         self.payload = {"select" : select_clause,
                         "geo": country_code,
                         "traceId" : 1122334455,
-                        "productsWhere" : "storeId == 2776 || storeId == 4919 || storeId == 6078 || storeId == 5119 || storeId == 4443",
-                        "productPageSize" : page_size}
+                        "productsWhere" : "geo == 356 && (storeId == 2776 || storeId == 4919 || storeId == 6078 || storeId == 5119 || storeId == 4443)",
+                        "productPageSize" : page_size,
+                        "filterStores" : [2776, 4919, 6078, 5119, 4443],
+                        "projectionStores" : [2776, 4919, 6078, 5119, 4443],
+                        "projectOnlyMatched" : True
+                        }
         self.n_days = n_days
 
     def getQuery(self, search_term):
