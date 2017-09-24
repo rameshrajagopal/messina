@@ -56,7 +56,6 @@ class DataCollector(object):
 
     def get(self, search_term):
         q = self.query.getQuery(search_term)
-        print q
         response = self.http_client.query(q)
         return response['result']
 

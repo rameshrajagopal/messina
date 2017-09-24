@@ -9,13 +9,13 @@ from bottle import request, run, route, abort, response, static_file
 from api_controller import ApiController
 
 def Usage():
-    return "python api.py <Api Host> <GatsbyHost>"
+    return "python api.py <Api Host> <GatsbyHost> <num_threads>"
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 4:
     print Usage()
     sys.exit(-1)
 
-api_controller = ApiController(sys.argv[1], sys.argv[2])
+api_controller = ApiController(sys.argv[1], sys.argv[2], int(sys.argv[3]))
 #tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
 tagger = CategoryTagger()
 
@@ -58,9 +58,7 @@ def tag():
         sort_by = request.params.get('sort_by')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
-        print "received request"
         res = api_controller.getProducts(q, sort_by)
-        print "got result"
         return res
     except:
         abort(500, traceback.format_exc())
