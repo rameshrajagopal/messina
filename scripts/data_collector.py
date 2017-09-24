@@ -58,7 +58,7 @@ class DataCollector(object):
         q = self.query.getQuery(search_term)
         print q
         response = self.http_client.query(q)
-        return response
+        return response['result']
 
     def collect(self, keywords_file, out_file, post):
         csv_out_file = open(out_file, "wb")

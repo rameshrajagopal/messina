@@ -9,16 +9,16 @@ from bottle import request, run, route, abort, response, static_file
 from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery
 from ranking_model import RankingModel
 
+def Usage():
+    return "python api.py <Api Host> <GatsbyHost>"
+
+if len(sys.argv) != 3:
+    print Usage()
+    sys.exit(-1)
+
+api_controller = ApiController(sys.argv[1], sys.argv[2])
 #tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
 tagger = CategoryTagger()
-select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
-page_size = 500
-country_code = 356
-gatsby_query  = ProductGatsbyQuery(select_clause, page_size, country_code)
-api_query = ProductApiQuery("http", "scarlet.prod.platform.io", "/v2.1/search", "IN", 50)
-gatsby_data_collector = DataCollector(gatsby_query)
-api_data_collector = DataCollector(api_query)
-ranking_model = RankingModel()
 
 @route('/')
 def index():
@@ -59,6 +59,7 @@ def tag():
         sort_by = request.params.get('sort_by')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
+        res = api_controller.getProducts(q, sort_by)
         gatsby_res = gatsby_data_collector.post(q)
         sorted_products = ranking_model.process(gatsby_res['products'])
         gatsby_res['products'] = sorted_products
