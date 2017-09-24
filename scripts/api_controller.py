@@ -1,6 +1,6 @@
 from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery
 from ranking_model import RankingModel
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Pool, Manager
 
 class SearchQuery(object):
     def __init__(self, search_term, sort_by, key, result_q, post_query):
@@ -9,6 +9,10 @@ class SearchQuery(object):
         self.key     = key
         self.result_q = result_q
         self.is_post_query = post_query
+
+    def __str__(self):
+        return "q=%s,sort_by=%s,key=%s,post_query=%s" % (self.search_term, self.sort_by,
+                self.key, self.is_post_query)
 
 class Worker(object):
     def __init__(self, data_collector, ranking_model, queries):
@@ -19,7 +23,9 @@ class Worker(object):
 
     def run(self):
         while True:
+            print "waiting"
             query = self.queries.get()
+            print query
             if query.is_post_query:
                 products = data_collector.post(q.search_term)
             else:
@@ -41,23 +47,24 @@ class ApiController(object):
         self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
         self.page_size = 200
         self.country_code = 356
-        self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code)
+        self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
         self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
         self.ranking_model = RankingModel()
-        self.queries = Queue()
+        self.manager = Manager()
+        self.queries = self.manager.Queue()
         self.workers = []
-        self.workers.append(DataCollector(gatsby_query), self.ranking_model, self.queries)
-        self.workers.append(DataCollector(api_query), self.ranking_model, self.queries)
+        self.workers.append(Worker(DataCollector(self.gatsby_query), self.ranking_model, self.queries))
+        self.workers.append(Worker(DataCollector(self.api_query), self.ranking_model, self.queries))
 
     def start(self):
         for worker in self.workers:
             worker.start()
 
     def getProducts(self, search_term, sort_by):
-        resutl_q = Queue()
-        api_query = SearchQuery(search_term, sort_by, "api", resutl_q, False)
-        gatsby_query = SearchQuery(search_term, sort_by, "gatsby", resutl_q, True)
-        self.queries.put(api_query)
-        self.queries.put(gatsby_query)
+        resutl_q = self.manager.Queue()
+        api_q = SearchQuery(search_term, sort_by, "api", resutl_q, False)
+        gatsby_q = SearchQuery(search_term, sort_by, "gatsby", resutl_q, True)
+        self.queries.put(api_q)
+        self.queries.put(gatsby_q)
         res = resutl_q.get()
         return res

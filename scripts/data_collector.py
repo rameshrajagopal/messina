@@ -27,8 +27,8 @@ class ProductApiQuery(object):
         return url
 
 class ProductGatsbyQuery(object):
-    def __init__(self, select_clause, page_size, country_code, n_days=30, url = "http://gatsby.prod.platform.io/products/search2"):
-        self.url = url
+    def __init__(self, select_clause, page_size, country_code, endpoint, host, n_days=30):
+        self.url = "http://" + host + endpoint
         self.headers = {'Content-type' : 'application/json', 'Accept' : 'application/json'}
         self.payload = {"select" : select_clause,
                         "geo": country_code,

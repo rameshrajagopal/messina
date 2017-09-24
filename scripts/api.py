@@ -6,8 +6,7 @@ import numpy as np
 from toplevelclassifier import CategoryTagger
 
 from bottle import request, run, route, abort, response, static_file
-from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery
-from ranking_model import RankingModel
+from api_controller import ApiController
 
 def Usage():
     return "python api.py <Api Host> <GatsbyHost>"
@@ -59,19 +58,13 @@ def tag():
         sort_by = request.params.get('sort_by')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
+        print "received request"
         res = api_controller.getProducts(q, sort_by)
-        gatsby_res = gatsby_data_collector.post(q)
-        sorted_products = ranking_model.process(gatsby_res['products'])
-        gatsby_res['products'] = sorted_products
-        api_res = api_data_collector.get(q)
-        res = {
-            'api': api_res['result'],
-            'gatsby': gatsby_res
-        }
+        print "got result"
         return res
     except:
         abort(500, traceback.format_exc())
 
 if __name__=='__main__':
-#    run(host='0.0.0.0', port=8080)
-    run(host='0.0.0.0', port=8080, debug=True)
+    run(host='0.0.0.0', port=9090)
+#    run(host='0.0.0.0', port=8080, debug=True)
