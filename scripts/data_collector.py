@@ -7,6 +7,7 @@ from query import ApiQuery
 from datetime import datetime, timedelta
 import urllib
 import time
+from query_to_category import Q2Category
 
 select_clause_holder = "%s&%s"
 
@@ -40,6 +41,17 @@ class ProductGatsbyQuery(object):
                         "projectOnlyMatched" : True
                         }
         self.n_days = n_days
+        self.query_to_cat = Q2Category()
+
+    def _buildWhereClause(self, categories):
+        wc = "categoryId == %s"
+        where_clause = self.payload["productsWhere"] + " && ("
+        idx = 0
+        while idx < len(categories) - 1:
+            where_clause += (wc % (categories[idx]) + " || ")
+            idx += 1
+        where_clause += (wc % (categories[idx]) + ")")
+        return where_clause
 
     def getQuery(self, search_term):
         self.payload["searchText"] = search_term

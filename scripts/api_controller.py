@@ -1,7 +1,7 @@
 from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery
 from ranking_model import RankingModel
 from threading import Thread
-from queue import Queue
+from Queue import Queue
 
 class SearchQuery(object):
     def __init__(self, search_term, sort_by, key, result_q, post_query):
@@ -29,9 +29,12 @@ class Worker(Thread):
                 products = self.data_collector.post(query.search_term)
             else:
                 products = self.data_collector.get(query.search_term)
-            if query.sort_by:
-               sorted_products = self.ranking_model.process(products['products'])
-               products['products'] = sorted_products
+            if query.is_post_query and query.sort_by:
+               try: 
+                   sorted_products = self.ranking_model.process(products['products'])
+                   products['products'] = sorted_products
+               except TypeError as e:
+                   pass
             query.result_q.put({query.key : products})
             query.result_q.task_done()
 
@@ -41,7 +44,7 @@ class Worker(Thread):
 class ApiController(object):
     def __init__(self, api_host, gatsby_host, num_threads):
         self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
-        self.page_size = 200
+        self.page_size = 500
         self.country_code = 356
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
         self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
