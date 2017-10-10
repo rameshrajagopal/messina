@@ -11,6 +11,7 @@ function populateProducts (products) {
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
       '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
+      '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
       '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
       'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
@@ -33,9 +34,10 @@ function populateProductsByType (type, products) {
       '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
       '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
+      '<span style="font-family: Arial; font-size: 11px;">mpid '+product.mpid+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
+      '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">computedScore: '+product.computedScore+'<br>'+
       '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
       'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
       '</div>'

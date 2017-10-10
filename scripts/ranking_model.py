@@ -22,13 +22,23 @@ class RankingModel:
                 sale_price[0] = min_sp
             if sale_price[1] < max_sp:
                 sale_price[1] = max_sp
-        search_score_normalizer = (1. * 100)/(search_score[1])
-        ranking_count_normalizer = (1. * 100)/(ranking_count)
-        sale_price_normalizer = (1. * 100)/ (sale_price[0])
+        if (search_score[1] > 0):
+            search_score_normalizer = (1. * 100)/(search_score[1])
+        else:
+            search_score_normalizer = 0
+        if ranking_count > 0:
+            ranking_count_normalizer = (1. * 100)/(ranking_count)
+        else:
+            ranking_count_normalizer = 0
+        if sale_price[0] > 0:
+            sale_price_normalizer = (1. * 100)/ (sale_price[0])
+        else:
+            sale_price_normalizer = 0
+        print search_score_normalizer, " ", ranking_count_normalizer, " ", sale_price_normalizer
         sorted_products = sorted(products,
-                key=lambda k: ((k['searchScore'] * search_score_normalizer) * 0.30) +
+                key=lambda k: ((k['searchScore'] * search_score_normalizer) * 0.20) +
                 ((k['aggregatedRatings']['ratingCount'] * ranking_count_normalizer) * 0.50) +
-                ((k['priceRange'][0]['salePrice'] * sale_price_normalizer) * 0.20),
+                ((k['priceRange'][0]['salePrice'] * sale_price_normalizer) * 0.30),
                 reverse=True)
         return sorted_products
 
