@@ -23,8 +23,15 @@
           <div class="jumbotron form-inline my-2 my-lg-0">
               <input class="form-control mr-sm-2" type="text" placeholder="Search" id="query">
               <select class="form-control" name="sort_by">
-                <option value="">Unsorted</option>
-                <option value="ratingCount">NormalizedScore</option>
+                <option value="0">Unsorted</option>
+                <option value="1">NormalizedScore</option>
+              </select>
+              <select multiple class="form-control" id="store_id" name="store_id">
+                <option value="2776">Amazon</option>
+                <option value="4443">Jabong</option>
+                <option value="4919">Shopclues</option>
+                <option value="6078">Tatacliq</option>
+                <option value="5119">Abof</option>
               </select>
               <button class="btn btn-outline-success btn-search my-2 my-sm-0" onclick="query()" style="margin-left: 10px;">Search</button>
           </div>

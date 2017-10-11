@@ -116,32 +116,32 @@ function getRefinedProducts(tags, query) {
   });
 }
 
-
 function query () {
   var searchText = $('.btn-search').text();
   $('.btn-search').text('Searching..');
 
   var q = $("#query").val();
   var sortBy = $('select[name="sort_by"]').val();
+  var storeIds = $('#store_id').val();
 
+  if (!q) {
+      alert("Please enter valid search term!!!");
+      $('.btn-search').text('Search');
+      return;
+  }
   var params = {
     q: q,
-    sort_by: sortBy
+    sort_by: sortBy,
+    store_ids: storeIds.join(',')
   };
+  console.log(params);
 
-  console.log(q)
-  //getProducts(q);
   $.getJSON(baseUrl+"/api/products", params,
     function (resp) {
       $('.btn-search').text(searchText);
       populateProductsByType('api', resp.api.products)
       populateProductsByType('gatsby', resp.gatsby.products)
-  //    getRefinedProducts(resp);
-  //    getBrands(resp.tags.brands);
-  //    getStores(resp.tags.stores);
-  //    getCategories(resp.tags.categories);
-    })
-
+   })
 }
 
 $("#query").on('keyup', function (e) {

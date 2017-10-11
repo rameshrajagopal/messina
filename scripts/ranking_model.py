@@ -1,39 +1,39 @@
 
 class RankingModel:
     def __init__(self):
+        self.keywords = ["for all smartphones", "for all", "compatible with", "case",\
+                "cover", "accessories","battery", "charger", "mount", "bluetooth headset",\
+                "headphones", "watch", "smartwatch", "wristband"]
         pass
 
     def process(self, products):
-        search_score  = [1000000000, -100000000]
+        search_score  = -100000000
         ranking_count = -100000000
-        sale_price    = [-1000000000, -100000000]
+        sale_price    = -100000000
         for product in products:
+            title = product['title']
+            found = False
+            for e in self.keywords:
+                if title.find(e) != -1:
+                    found = True
+                    break
             sc = product['searchScore']
+            if found:
+                sc = product['searchScore'] - 25
             rc = product['aggregatedRatings']['ratingCount']
             min_sp = product['priceRange'][0]['salePrice']
-            max_sp = product['priceRange'][1]['salePrice']
-            if search_score[0] > sc:
-                search_score[0] = sc
-            if search_score[1] < sc:
-                search_score[1] = sc
-            if ranking_count < rc:
-                ranking_count = rc
-            if sale_price[0] < min_sp:
-                sale_price[0] = min_sp
-            if sale_price[1] < max_sp:
-                sale_price[1] = max_sp
-        if (search_score[1] > 0):
-            search_score_normalizer = (1. * 100)/(search_score[1])
-        else:
-            search_score_normalizer = 0
+            sale_price = max(min_sp, sale_price)
+            search_score = max(sc, search_score)
+            ranking_count = max(rc, ranking_count)
+        search_score_normalizer = 0
+        ranking_count_normalizer = 0
+        sale_price_normalizer = 0
+        if search_score > 0:
+            search_score_normalizer = (1. * 100)/search_score
         if ranking_count > 0:
-            ranking_count_normalizer = (1. * 100)/(ranking_count)
-        else:
-            ranking_count_normalizer = 0
-        if sale_price[0] > 0:
-            sale_price_normalizer = (1. * 100)/ (sale_price[0])
-        else:
-            sale_price_normalizer = 0
+            ranking_count_normalizer = (1. * 100)/ranking_count
+        if sale_price > 0:
+            sale_price_normalizer = (1. * 100)/ sale_price
         print search_score_normalizer, " ", ranking_count_normalizer, " ", sale_price_normalizer
         sorted_products = sorted(products,
                 key=lambda k: ((k['searchScore'] * search_score_normalizer) * 0.20) +

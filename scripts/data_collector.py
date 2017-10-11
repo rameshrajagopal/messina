@@ -23,8 +23,14 @@ class ProductApiQuery(object):
             self.url_params = url_params
         self.store_params = "&storeId=2776&storeId=4919&storeId=6078&storeId=5119&storeId=4443"
 
-    def getQuery(self, term):
-        url = self.query.getSearchQuery(term) + "&" + urllib.urlencode(self.url_params) + self.store_params
+    def _buildWhereClauseWithStores(self, stores):
+        if len(stores) == 0:
+            return ""
+        wc = "&storeId=%s" % (stores[0])
+        return wc + self._buildWhereClauseWithStores(stores[1:]) 
+
+    def getQuery(self, term, store_ids):
+        url = self.query.getSearchQuery(term) + "&" + urllib.urlencode(self.url_params) + self._buildWhereClauseWithStores(store_ids)
         return url
 
 class ProductGatsbyQuery(object):
@@ -38,25 +44,50 @@ class ProductGatsbyQuery(object):
                         "productPageSize" : page_size,
                         "filterStores" : [2776, 4919, 6078, 5119, 4443],
                         "projectionStores" : [2776, 4919, 6078, 5119, 4443],
-                        "projectOnlyMatched" : True
+                        "projectOnlyMatched" : True,
+                        "sortBy" : "relevance"
                         }
         self.n_days = n_days
         self.query_to_cat = Q2Category()
 
-    def _buildWhereClause(self, categories):
-        wc = "categoryId == %s"
-        where_clause = self.payload["productsWhere"] + " && ("
+    def _buildWhereClause(self, ids, wc, and_or):
+        where_clause = ""
+        if len(ids) == 0:
+            return where_clause
         idx = 0
-        while idx < len(categories) - 1:
-            where_clause += (wc % (categories[idx]) + " || ")
+        while idx < len(ids) - 1:
+            where_clause += (wc % (ids[idx]) + and_or)
             idx += 1
-        where_clause += (wc % (categories[idx]) + ")")
+        where_clause += (wc % (ids[idx]))
+        return "(" + where_clause + ")"
+
+    def _buildWhereClauseWithCategories(self, categories):
+        wc = "categoryId == %s"
+        prefix = " && "
+        where_clause = self._buildWhereClause(categories, wc, " || ")
+        if len(where_clause) != 0:
+            return prefix + where_clause
         return where_clause
 
-    def getQuery(self, search_term):
+    def _buildWhereClauseWithStores(self, store_ids):
+        wc = "storeId == %s"
+        prefix = " && "
+        where_clause = self._buildWhereClause(store_ids, wc, " || ")
+        if len(where_clause) != 0:
+            return prefix + where_clause
+        return where_clause
+
+    def getQuery(self, search_term, store_ids):
         self.payload["searchText"] = search_term
         timestamp = int(time.mktime((datetime.now() - timedelta(days=self.n_days)).timetuple()) * 1000)
         self.payload["offersWhere"] = "availability == 0 && timestamp > %s" % (timestamp)
+        self.payload["productsWhere"] = "geo == 356" + self._buildWhereClauseWithStores(store_ids);
+        if len(store_ids) > 0:
+            self.payload["filterStores"] = [int(store) for store in store_ids]
+            self.payload["projectionStores"] = [int(store) for store in store_ids]
+        else:
+            self.payload["filterStores"] = []
+            self.payload["projectionStores"] = []
         return (self.url, self.headers, self.payload)
 
 
@@ -65,13 +96,13 @@ class DataCollector(object):
         self.query = query
         self.http_client = HttpClient()
 
-    def post(self, search_term):
-        q = self.query.getQuery(search_term)
+    def post(self, search_term, store_ids):
+        q = self.query.getQuery(search_term, store_ids)
         response = self.http_client.postQuery(q[0], q[1], q[2])
         return response
 
-    def get(self, search_term):
-        q = self.query.getQuery(search_term)
+    def get(self, search_term, store_ids):
+        q = self.query.getQuery(search_term, store_ids)
         response = self.http_client.query(q)
         return response['result']
 

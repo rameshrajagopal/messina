@@ -4,16 +4,17 @@ from threading import Thread
 from Queue import Queue
 
 class SearchQuery(object):
-    def __init__(self, search_term, sort_by, key, result_q, post_query):
+    def __init__(self, search_term, sort_by, key, result_q, post_query, store_ids):
         self.search_term = search_term
         self.sort_by = sort_by
         self.key     = key
         self.result_q = result_q
         self.is_post_query = post_query
+        self.store_ids = store_ids
 
     def __str__(self):
-        return "q=%s,sort_by=%s,key=%s,post_query=%s" % (self.search_term, self.sort_by,
-                self.key, self.is_post_query)
+        return "q=%s,sort_by=%s,key=%s,post_query=%s, store_ids=%s" % (self.search_term, self.sort_by,
+                self.key, self.is_post_query, self.store_ids)
 
 class Worker(Thread):
     def __init__(self, data_collector, ranking_model, queries):
@@ -26,9 +27,9 @@ class Worker(Thread):
         while True:
             query = self.queries.get()
             if query.is_post_query:
-                products = self.data_collector.post(query.search_term)
+                products = self.data_collector.post(query.search_term, query.store_ids)
             else:
-                products = self.data_collector.get(query.search_term)
+                products = self.data_collector.get(query.search_term, query.store_ids)
             if query.is_post_query and query.sort_by:
                try: 
                    sorted_products = self.ranking_model.process(products['products'])
@@ -60,10 +61,12 @@ class ApiController(object):
             worker.daemon = True
             worker.start()
 
-    def getProducts(self, search_term, sort_by):
+    def getProducts(self, search_term, sort_by, stores):
+        store_ids = [store.trim() for store in stores.split(",") if store != '']
+        print store_ids, len(store_ids)
         resutl_q = Queue(2)
-        api_q = SearchQuery(search_term, sort_by, "api", resutl_q, False)
-        gatsby_q = SearchQuery(search_term, sort_by, "gatsby", resutl_q, True)
+        api_q = SearchQuery(search_term, sort_by, "api", resutl_q, False, store_ids)
+        gatsby_q = SearchQuery(search_term, sort_by, "gatsby", resutl_q, True, store_ids)
         self.gatsby_queries.put(gatsby_q)
         self.api_queries.put(api_q)
         result = {}
