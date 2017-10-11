@@ -62,8 +62,7 @@ class ApiController(object):
             worker.start()
 
     def getProducts(self, search_term, sort_by, stores):
-        store_ids = [store.trim() for store in stores.split(",") if store != '']
-        print store_ids, len(store_ids)
+        store_ids = [store.strip() for store in stores.split(",") if store != '']
         resutl_q = Queue(2)
         api_q = SearchQuery(search_term, sort_by, "api", resutl_q, False, store_ids)
         gatsby_q = SearchQuery(search_term, sort_by, "gatsby", resutl_q, True, store_ids)
