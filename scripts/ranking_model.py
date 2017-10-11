@@ -3,7 +3,8 @@ class RankingModel:
     def __init__(self):
         self.keywords = ["for all smartphones", "for all", "compatible with", "case",\
                 "cover", "accessories","battery", "charger", "mount", "bluetooth headset",\
-                "headphones", "watch", "smartwatch", "wristband"]
+                "headphones", "watch", "smartwatch", "wristband", "compatibile with",\
+                "smart watch", "socket holder", "bracket", "holder", "stand"]
         pass
 
     def process(self, products):
@@ -11,7 +12,7 @@ class RankingModel:
         ranking_count = -100000000
         sale_price    = -100000000
         for product in products:
-            title = product['title']
+            title = product['title'].lower()
             found = False
             for e in self.keywords:
                 if title.find(e) != -1:
@@ -19,7 +20,8 @@ class RankingModel:
                     break
             sc = product['searchScore']
             if found:
-                sc = product['searchScore'] - 25
+                product['searchScore'] = product['searchScore'] - 25
+                sc = product['searchScore']
             rc = product['aggregatedRatings']['ratingCount']
             min_sp = product['priceRange'][0]['salePrice']
             sale_price = max(min_sp, sale_price)
@@ -37,8 +39,8 @@ class RankingModel:
         print search_score_normalizer, " ", ranking_count_normalizer, " ", sale_price_normalizer
         sorted_products = sorted(products,
                 key=lambda k: ((k['searchScore'] * search_score_normalizer) * 0.20) +
-                ((k['aggregatedRatings']['ratingCount'] * ranking_count_normalizer) * 0.50) +
-                ((k['priceRange'][0]['salePrice'] * sale_price_normalizer) * 0.30),
+                ((k['aggregatedRatings']['ratingCount'] * ranking_count_normalizer) * 0.40) +
+                ((k['priceRange'][0]['salePrice'] * sale_price_normalizer) * 0.40),
                 reverse=True)
         return sorted_products
 

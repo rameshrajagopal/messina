@@ -1,4 +1,4 @@
-from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery
+from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery, ProductAliasQuery
 from ranking_model import RankingModel
 from threading import Thread
 from Queue import Queue
@@ -43,12 +43,13 @@ class Worker(Thread):
         self.join()
 
 class ApiController(object):
-    def __init__(self, api_host, gatsby_host, num_threads):
+    def __init__(self, api_host, gatsby_host, alias_host, num_threads):
         self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
         self.page_size = 500
         self.country_code = 356
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
         self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
+        self.alias_service = DataCollector(ProductAliasQuery("http", alias_host, "/search", "IN"))
         self.ranking_model = RankingModel()
         self.gatsby_queries = Queue()
         self.api_queries    = Queue()
@@ -62,10 +63,12 @@ class ApiController(object):
             worker.start()
 
     def getProducts(self, search_term, sort_by, stores):
+        alias_response = self.alias_service.getAlias(search_term)
+        corrected_search_term = alias_response['correctedQ']
         store_ids = [store.strip() for store in stores.split(",") if store != '']
         resutl_q = Queue(2)
-        api_q = SearchQuery(search_term, sort_by, "api", resutl_q, False, store_ids)
-        gatsby_q = SearchQuery(search_term, sort_by, "gatsby", resutl_q, True, store_ids)
+        api_q = SearchQuery(corrected_search_term, sort_by, "api", resutl_q, False, store_ids)
+        gatsby_q = SearchQuery(corrected_search_term, sort_by, "gatsby", resutl_q, True, store_ids)
         self.gatsby_queries.put(gatsby_q)
         self.api_queries.put(api_q)
         result = {}

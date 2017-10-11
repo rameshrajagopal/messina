@@ -1,5 +1,6 @@
 api_url_holder = "%s://%s%s?app_key=%s&app_id=%s&countryCode=%s&pageSize=%s"
 classify_url_holder = "%s://%s%s?"
+alias_url_holder = "%s://%s%s?"
 
 class Query(object):
     def __init__(self):
@@ -29,5 +30,13 @@ class ClassifierQuery(Query):
 
     def getSearchQuery(self, search_term):
         query = self.url + "doc=%s" % search_term
+        return query
+
+class AliasQuery(Query):
+    def __init__(self, scheme, host, endpoint, cc):
+        self.url = alias_url_holder % (scheme, host, endpoint) + "geo=%s" % cc + "&"
+
+    def getSearchQuery(self, search_term):
+        query = self.url + "q=%s" % search_term
         return query
 

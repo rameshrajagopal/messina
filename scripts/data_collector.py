@@ -3,13 +3,20 @@ import json
 import time
 
 from http_client import HttpClient
-from query import ApiQuery
+from query import ApiQuery, AliasQuery
 from datetime import datetime, timedelta
 import urllib
 import time
 from query_to_category import Q2Category
 
 select_clause_holder = "%s&%s"
+
+class ProductAliasQuery(object):
+    def __init__(self, schme, host, endpoint, country_code):
+        self.query = AliasQuery(schme, host, endpoint, country_code)
+
+    def getQuery(self, search_term):
+        return self.query.getSearchQuery(search_term)
 
 class ProductApiQuery(object):
     def __init__(self, scheme, host, endpoint, country_code, page_size, n_days=30, url_params={}):
@@ -106,6 +113,11 @@ class DataCollector(object):
         response = self.http_client.query(q)
         return response['result']
 
+    def getAlias(self, search_term):
+        q = self.query.getQuery(search_term)
+        response = self.http_client.query(q)
+        return response
+
     def collect(self, keywords_file, out_file, post):
         csv_out_file = open(out_file, "wb")
         csv_writer = csv.writer(csv_out_file, delimiter='\t')
@@ -145,9 +157,15 @@ if __name__ == '__main__':
     if (sys.argv[3] == 'api'):
         query = ProductApiQuery("http", "scarlet.prod.platform.io", "/v2.1/search", "IN", 50)
         post =  False
+    elif sys.argv[3] == 'alias':
+        query = ProductAliasQuery("http", "search-cache.prod.indix.tv", "/search", "IN")
+        post = False
+        collector = DataCollector(query)
+        line = raw_input("search term: ")
+        print collector.getAlias(line.strip())
     else:
         query = ProductGatsbyQuery(select_clause, page_size, country_code)
         post = True
-    collector = DataCollector(query)
-    collector.collect(sys.argv[1], sys.argv[2], post)
+        collector = DataCollector(query)
+        collector.collect(sys.argv[1], sys.argv[2], post)
 
