@@ -65,6 +65,8 @@ class ApiController(object):
     def getProducts(self, search_term, sort_by, stores):
         alias_response = self.alias_service.getAlias(search_term)
         corrected_search_term = alias_response['correctedQ']
+        if len(corrected_search_term) == 0:
+            corrected_search_term = search_term
         store_ids = [store.strip() for store in stores.split(",") if store != '']
         resutl_q = Queue(2)
         api_q = SearchQuery(corrected_search_term, sort_by, "api", resutl_q, False, store_ids)
