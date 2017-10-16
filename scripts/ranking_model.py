@@ -13,15 +13,7 @@ class RankingModel:
         sale_price    = -100000000
         for product in products:
             title = product['title'].lower()
-            found = False
-            for e in self.keywords:
-                if title.find(e) != -1:
-                    found = True
-                    break
             sc = product['searchScore']
-            if found:
-                product['searchScore'] = product['searchScore'] - 25
-                sc = product['searchScore']
             rc = product['aggregatedRatings']['ratingCount']
             min_sp = product['priceRange'][0]['salePrice']
             sale_price = max(min_sp, sale_price)
