@@ -24,3 +24,11 @@ class QASResponse(Response):
                 cat_conf_map.append((int(cat_conf[0]), cat_conf[1]))
         return sorted(cat_conf_map, key=lambda k: k[1], reverse=True)
 
+    def getCategories(self, threshold=0.025):
+        categories = []
+        for cat_dict in self.response['ids'][0]["classes"]:
+            for cat, conf in cat_dict.items():
+                if conf >= threshold:
+                    categories.append(cat)
+        return categories
+

@@ -6,14 +6,18 @@ import numpy as np
 from toplevelclassifier import CategoryTagger
 
 from bottle import request, run, route, abort, response, static_file
-from data_collector import DataCollector
+from api_controller import ApiController
 
+def Usage():
+    return "python api.py <Api Host> <GatsbyHost> <AliasHost> <num_threads>"
+
+if len(sys.argv) != 5:
+    print Usage()
+    sys.exit(-1)
+
+api_controller = ApiController(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]))
 #tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
 tagger = CategoryTagger()
-select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
-page_size = 500
-country_code = 356
-data_collector = DataCollector(select_clause, page_size, country_code)
 
 @route('/')
 def index():
@@ -21,7 +25,7 @@ def index():
 
 @route('/static/<filename:path>')
 def static(filename):
-    return static_file(filename, root='/home/indix/ind9/mesina/scripts/static')
+    return static_file(filename, root='./static')
 
 @route('/api/status')
 def status():
@@ -51,13 +55,18 @@ def tag():
 def tag():
     q = request.query['q']
     try:
-        res = data_collector.post(q)
+        sort_by = request.params.get('sort_by')
+        stores  = request.params.get('store_ids')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
+        if sort_by == "0":
+            sort = False
+        else:
+            sort = True
+        res = api_controller.getProducts(q, sort, stores)
         return res
     except:
         abort(500, traceback.format_exc())
 
 if __name__=='__main__':
-#    run(host='0.0.0.0', port=8080)
-    run(host='192.168.0.152', port=8080)
+    run(host='0.0.0.0', port=8080)

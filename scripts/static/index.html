@@ -10,26 +10,38 @@
     <title>Messina - Indix query tagger</title>
 
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/main.css" rel="stylesheet">
+    <link href="/static/css/main.css" rel="stylesheet">
   </head>
 
   <body>
 
-    <div class="container">
+    <div class="">
 
       <div class="row row-offcanvas row-offcanvas-right">
 
-        <div class="col-12 col-md-9">
+        <div class="col-lg-12 col-md-12">
           <div class="jumbotron form-inline my-2 my-lg-0">
               <input class="form-control mr-sm-2" type="text" placeholder="Search" id="query">
-              <button class="btn btn-outline-success my-2 my-sm-0" onclick="query()">Search</button>
+              <select class="form-control" name="sort_by">
+                <option value="0">Unsorted</option>
+                <option value="1">NormalizedScore</option>
+              </select>
+              <select multiple class="form-control" id="store_id" name="store_id">
+                <option value="2776">Amazon</option>
+                <option value="4443">Jabong</option>
+                <option value="4919">Shopclues</option>
+                <option value="6078">Tatacliq</option>
+                <option value="5119">Abof</option>
+              </select>
+              <button class="btn btn-outline-success btn-search my-2 my-sm-0" onclick="query()" style="margin-left: 10px;">Search</button>
           </div>
-          <div class="row" id="products">
+          <div class="row">
+            <div class="col-lg-6" style="text-align: center; padding: 10px 0px;">GATSBY</div>
+            <div class="col-lg-6"  style="text-align: center; padding: 10px 0px;">API</div>
+            <div class="col-lg-6 col-md-6" id="gatsbyProducts" style="border-right: 1px dotted #CCC"></div>
+            <div class="col-lg-6 col-md-6" id="apiProducts"></div>
           </div>
         </div>
-
-        <div class="col-6 col-md-3 sidebar-offcanvas" id="sidebar" style="margin-top: 60px; padding-left: 30px;">
-        </div><!--/span-->
 
       </div><!--/row-->
 
