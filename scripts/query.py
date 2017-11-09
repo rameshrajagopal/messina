@@ -1,6 +1,7 @@
 api_url_holder = "%s://%s%s?app_key=%s&app_id=%s&countryCode=%s&pageSize=%s"
 classify_url_holder = "%s://%s%s?"
 alias_url_holder = "%s://%s%s?"
+thunderbird_url_holder = "%s://%s:%s%s?"
 
 class Query(object):
     def __init__(self):
@@ -38,5 +39,13 @@ class AliasQuery(Query):
 
     def getSearchQuery(self, search_term):
         query = self.url + "q=%s" % search_term
+        return query
+
+class ThunderBirdQuery(Query):
+    def __init__(self, scheme, host, port, endpoint):
+        self.url = thunderbird_url_holder % (scheme, host, port, endpoint)
+
+    def getSearchQuery(self, search_term):
+        query = self.url + "q=%s" % search_term + "&size=500"
         return query
 

@@ -6,41 +6,64 @@ var ixSearchUrl = "https://api.indix.com/v2.1/search?app_key="+app_key;
 function populateProducts (products) {
   $("#products").empty();
   products.forEach(function (product) {
-    $("#products").append('<div class="col-6 col-lg-4">'+
-      '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
-      '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
-      '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
-      '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
-      'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
-      '</div>'
+    $("#products").append('<div class="col-sm-12 p-card">'+
+    '<div class="row">'+
+      '<div class="thumbnail col-sm-4 text-center">'+
+        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
+      '</div>'+
+      '<div class="caption col-sm-8">'+
+        '<div style="font-family: Arial; font-size: 16px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap;">'+ product.title +'</div>'+
+        '<span style="font-family: Arial; font-size: 11px;">'+product.categoryNamePath+'</span>'+
+        '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'</span>'+
+        '<span> RatingCount '+ product.aggregatedRatings.ratingCount + '</span><span> RatingValue '+ product.aggregatedRatings.ratingValue +'</span>'+
+        '<div class="clearfix">'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'
     );
   });
 }
 
-function populateProductsByType (type, products) {
+function populateProductsByType (type, products, responseTime) {
   var dom;
   switch (type) {
     case 'api':
-      dom = $('#apiProducts'); break;
+      dom = $('#apiProducts'); 
+      $("#api_time").text(`( ${responseTime.toFixed(2)} ms )`);
+      break;
     case 'gatsby':
-      dom = $('#gatsbyProducts'); break;
+      dom = $('#gatsbyProducts'); 
+      $("#gatsby_time").text(`( ${responseTime.toFixed(2)} ms )`)
+      break;
+    case 'thunderbird':
+      dom = $('#thunderbird'); 
+      $("#thunderbird_time").text(`( ${responseTime.toFixed(2)} ms )`)
+      break;
   }
   dom.empty();
   products.forEach(function (product) {
-    dom.append('<div class="col-lg-4">'+
-      '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
-      '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
-      '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">mpid '+product.mpid+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'<br>'+
-      '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
-      '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
-      'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
-      '</div>'
+    dom.append('<div class="col-sm-12 p-card">'+
+    '<div class="row">'+
+      '<div class="thumbnail col-sm-4 text-center">'+
+        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
+      '</div>'+
+      '<div class="caption col-sm-8">'+
+        '<p><div style="font-family: Arial; font-size: 16px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap;">'+ product.title +'</div>'+
+        '<span style="font-family: Arial; font-size: 11px;">'+product.categoryNamePath+'<br>'+
+        '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'</span>'+
+        '<span> RatingCount '+ product.aggregatedRatings.ratingCount + '</span><span> RatingValue '+ product.aggregatedRatings.ratingValue +'</span></p>'+
+        '<div class="clearfix">'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'
     );
   });
 }
@@ -139,8 +162,9 @@ function query () {
   $.getJSON(baseUrl+"/api/products", params,
     function (resp) {
       $('.btn-search').text(searchText);
-      populateProductsByType('api', resp.api.products)
-      populateProductsByType('gatsby', resp.gatsby.products)
+      populateProductsByType('api', resp.api.products, resp.api.responseTime)
+      populateProductsByType('gatsby', resp.gatsby.products, resp.gatsby.responseTime)
+      populateProductsByType('thunderbird', resp.thunderbird.products, resp.thunderbird.responseTime)
    })
 }
 

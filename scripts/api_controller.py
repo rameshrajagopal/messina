@@ -1,7 +1,8 @@
-from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery, ProductAliasQuery
+from data_collector import DataCollector, ProductApiQuery, ProductGatsbyQuery, ProductAliasQuery, ProductThunderbirdQuery
 from ranking_model import RankingModel
 from threading import Thread
 from Queue import Queue
+import time
 
 class SearchQuery(object):
     def __init__(self, search_term, sort_by, key, result_q, post_query, store_ids):
@@ -43,13 +44,15 @@ class Worker(Thread):
         self.join()
 
 class ApiController(object):
-    def __init__(self, api_host, gatsby_host, alias_host, num_threads):
+    def __init__(self, api_host, gatsby_host, alias_host, thunderbird_host, num_threads):
+        print("test")
         self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
         self.page_size = 500
         self.country_code = 356
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
         self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
         self.alias_service = DataCollector(ProductAliasQuery("http", alias_host, "/search", "IN"))
+        self.thunderbird_service = DataCollector(ProductThunderbirdQuery("http", thunderbird_host, 9200, "/_search"))
         self.ranking_model = RankingModel()
         self.gatsby_queries = Queue()
         self.api_queries    = Queue()
@@ -64,6 +67,10 @@ class ApiController(object):
 
     def getProducts(self, search_term, sort_by, stores):
         alias_response = self.alias_service.getAlias(search_term)
+        start = time.time()
+        thunderbird_response = self.thunderbird_service.getAlias(search_term)
+        end = time.time() - start
+        thunderbird_response = list(map( lambda x: x["_source"], thunderbird_response["hits"]["hits"]))
         corrected_search_term = alias_response['correctedQ']
         if len(corrected_search_term) == 0:
             corrected_search_term = search_term
@@ -78,4 +85,6 @@ class ApiController(object):
             res = resutl_q.get()
             for key,value in res.items():
                 result[key] = value
+
+        result["thunderbird"] = { "products": thunderbird_response, "responseTime": end }
         return result

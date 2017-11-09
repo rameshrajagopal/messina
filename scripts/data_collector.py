@@ -3,7 +3,7 @@ import json
 import time
 
 from http_client import HttpClient
-from query import ApiQuery, AliasQuery
+from query import ApiQuery, AliasQuery, ThunderBirdQuery
 from datetime import datetime, timedelta
 import urllib
 import time
@@ -14,6 +14,13 @@ select_clause_holder = "%s&%s"
 class ProductAliasQuery(object):
     def __init__(self, schme, host, endpoint, country_code):
         self.query = AliasQuery(schme, host, endpoint, country_code)
+
+    def getQuery(self, search_term):
+        return self.query.getSearchQuery(search_term)
+
+class ProductThunderbirdQuery(object):
+    def __init__(self, schme, host, port, endpoint):
+        self.query = ThunderBirdQuery(schme, host, port, endpoint)
 
     def getQuery(self, search_term):
         return self.query.getSearchQuery(search_term)
@@ -105,17 +112,26 @@ class DataCollector(object):
 
     def post(self, search_term, store_ids):
         q = self.query.getQuery(search_term, store_ids)
+        start = time.time()
         response = self.http_client.postQuery(q[0], q[1], q[2])
+        end = time.time() - start
+        response['responseTime'] = end
         return response
 
     def get(self, search_term, store_ids):
         q = self.query.getQuery(search_term, store_ids)
+        start = time.time()
         response = self.http_client.query(q)
+        end = time.time() - start
+        response['result']['responseTime'] = end
         return response['result']
 
     def getAlias(self, search_term):
         q = self.query.getQuery(search_term)
+        start = time.time()
         response = self.http_client.query(q)
+        end = time.time() - start
+        response["responseTime"] = end
         return response
 
     def collect(self, keywords_file, out_file, post):

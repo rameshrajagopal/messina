@@ -9,13 +9,13 @@ from bottle import request, run, route, abort, response, static_file
 from api_controller import ApiController
 
 def Usage():
-    return "python api.py <Api Host> <GatsbyHost> <AliasHost> <num_threads>"
+    return "python api.py <Api Host> <GatsbyHost> <AliasHost> <ThunderbirdHost> <num_threads>"
 
-if len(sys.argv) != 5:
+if len(sys.argv) != 6:
     print Usage()
     sys.exit(-1)
 
-api_controller = ApiController(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]))
+api_controller = ApiController(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], int(sys.argv[5]))
 #tagger = Tagger("/home/indix/ind9/mesina/data/brand", "/home/indix/ind9/mesina/data/category", "/home/indix/ind9/mesina/data/store")
 tagger = CategoryTagger()
 

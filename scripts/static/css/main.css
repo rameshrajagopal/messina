@@ -68,3 +68,18 @@ footer {
     width: 50%; /* 6 columns */
   }
 }
+.tags {
+  border: 1px solid #cacaca;
+  margin: 2px;
+  padding: 1px;
+}
+
+.p-card {
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+  min-height: 200px;
+}
+
+span.rtime {
+  font-size: 11px;
+}
