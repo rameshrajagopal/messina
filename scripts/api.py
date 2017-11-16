@@ -51,9 +51,25 @@ def tag():
     except:
         abort(500, traceback.format_exc())
 
+def toBool(str):
+    return True if str == 'true' else False
+
+def getTBParams(request):
+    params = {}
+    try:
+        params = {
+            'analyzer': toBool(request.query['tb_params[analyzer]']),
+            'legacy': toBool(request.query['tb_params[legacy]'])
+        }
+    except:
+        print "couldnt parse thunderbird params"
+    return params
+
 @route('/api/products')
 def tag():
     q = request.query['q']
+    tbParams = getTBParams(request)
+    print(tbParams)
     try:
         sort_by = request.params.get('sort_by')
         stores  = request.params.get('store_ids')
@@ -63,7 +79,7 @@ def tag():
             sort = False
         else:
             sort = True
-        res = api_controller.getProducts(q, sort, stores)
+        res = api_controller.getProducts(q, sort, stores, tbParams)
         return res
     except:
         abort(500, traceback.format_exc())

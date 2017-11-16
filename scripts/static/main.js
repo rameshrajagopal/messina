@@ -138,7 +138,13 @@ function getRefinedProducts(tags, query) {
     populateStatus(queryStr, resp.result.count, tags);
   });
 }
-
+function getTBParams() {
+  const hashes = location.hash.replace("#", "").split("&")
+  return hashes.reduce((acc, hash) => {
+    const [name, value] = hash.split("=")
+    return Object.assign({}, acc, { [name]: (value == "true") ? true : false })
+  }, {})
+}
 function query () {
   var searchText = $('.btn-search').text();
   $('.btn-search').text('Searching..');
@@ -155,7 +161,8 @@ function query () {
   var params = {
     q: q,
     sort_by: sortBy,
-    store_ids: storeIds.join(',')
+    store_ids: storeIds.join(','),
+    tb_params: getTBParams()
   };
   console.log(params);
 

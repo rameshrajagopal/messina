@@ -5,6 +5,7 @@
 html,
 body {
   overflow-x: hidden; /* Prevent scroll on narrow devices */
+  height: 100%;
 }
 footer {
   padding: 30px 0;
@@ -82,4 +83,9 @@ footer {
 
 span.rtime {
   font-size: 11px;
+}
+
+.tb-settings {
+  text-align: center;
+  padding: 5px 10px;
 }

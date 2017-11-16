@@ -8,9 +8,10 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>Messina - Indix query tagger</title>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/main.css" rel="stylesheet">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
   </head>
 
   <body>
@@ -38,7 +39,22 @@
           <div class="row">
             <div class="col-lg-4 title" style="text-align: center; padding: 10px 0px; border-bottom: 1px solid #eee; margin-bottom: 20px;">GATSBY <span class="rtime" id="gatsby_time"></span></div>
             <div class="col-lg-4 title"  style="text-align: center; padding: 10px 0px;border-bottom: 1px solid #eee; margin-bottom: 20px;">API <span class="rtime" id="api_time"></span></div>
-            <div class="col-lg-4 title"  style="text-align: center; padding: 10px 0px; border-bottom: 1px solid #eee; margin-bottom: 20px;">THUNDERBIRD <span class="rtime" id="thunderbird_time"></span></div>
+            <div class="col-lg-4 title"  style="text-align: center; padding: 10px 0px; border-bottom: 1px solid #eee; margin-bottom: 20px;">THUNDERBIRD 
+              <span class="rtime" id="thunderbird_time"></span>
+              <button class="btn btn-default" id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-cog"></i>
+              </button>
+              <ul class="dropdown-menu col-sm-12" aria-labelledby="dLabel">
+                <li class="row tb-settings">
+                  <div class="col-sm-6"><span>Use legacy score</span></div>
+                  <div class="col-sm-6"><input type="checkbox" name="legacy"></div>
+                </li>
+                <li class="row tb-settings">
+                    <div class="col-sm-6"><span>Use analyzer</span></div>
+                    <div class="col-sm-6"><input type="checkbox" name="analyzer"></div>
+                  </li>
+              </ul>
+            </div>
             <div class="col-lg-4 col-md-4" id="gatsbyProducts" style="border-right: 1px dotted #CCC"></div>
             <div class="col-lg-4 col-md-4" id="apiProducts" style="border-right: 1px dotted #CCC"></div>
             <div class="col-lg-4 col-md-4" id="thunderbird"></div>
@@ -53,5 +69,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/main.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script>
+      $(document).ready(() => {
+        const hashes = location.hash.replace("#", "").split("&")
+        hashes.forEach((hash) => {
+          const [name, value] = hash.split("=")
+          if(name)
+            $(`input[type=checkbox][name=${name}]`).prop("checked", (value == "true") ? true : false )
+        })
+        $("input[type=checkbox]").on("change", (e) => {
+          const els = $("input[type=checkbox]")
+          const params = $.map(els, (el) => `${$(el).attr("name")}=${$(el).is(":checked")}`)
+          window.location.hash=params.join("&")
+        })
+      })
+    </script>
+    
   </body>
 </html>

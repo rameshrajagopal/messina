@@ -133,6 +133,14 @@ class DataCollector(object):
         end = time.time() - start
         response["responseTime"] = end
         return response
+    def getTBAlias(self, search_term, tbParams):
+        q = self.query.getQuery(search_term)
+        
+        start = time.time()
+        response = self.http_client.queryWithBody(q, {'query': {'term': {'titleBlob': search_term}}})
+        end = time.time() - start
+        response["responseTime"] = end
+        return response
 
     def collect(self, keywords_file, out_file, post):
         csv_out_file = open(out_file, "wb")

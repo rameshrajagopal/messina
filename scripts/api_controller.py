@@ -65,10 +65,10 @@ class ApiController(object):
             worker.daemon = True
             worker.start()
 
-    def getProducts(self, search_term, sort_by, stores):
+    def getProducts(self, search_term, sort_by, stores, tbParams):
         alias_response = self.alias_service.getAlias(search_term)
         start = time.time()
-        thunderbird_response = self.thunderbird_service.getAlias(search_term)
+        thunderbird_response = self.thunderbird_service.getTBAlias(search_term, tbParams)
         end = time.time() - start
         thunderbird_response = list(map( lambda x: x["_source"], thunderbird_response["hits"]["hits"]))
         corrected_search_term = alias_response['correctedQ']
