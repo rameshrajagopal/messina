@@ -133,11 +133,63 @@ class DataCollector(object):
         end = time.time() - start
         response["responseTime"] = end
         return response
+
     def getTBAlias(self, search_term, tbParams):
+        url = 'http://10.181.27.25:9200/dev/test1/_search?size=500'
         q = self.query.getQuery(search_term)
-        
         start = time.time()
-        response = self.http_client.queryWithBody(q, {'query': {'term': {'titleBlob': search_term}}})
+        if tbParams['analyzer']:
+            if tbParams['legacy']:
+                body = {
+                    'query': {
+                        'function_score': {
+                            'query': { 
+                                'match': {
+                                    'titleBlob.english': search_term
+                                }
+                            },
+                            'script_score': {
+                             'script': {
+                                'source': "doc['searchScore'].value"
+                             }
+                            }
+                        }
+                    }
+                }
+
+            else:
+                body = {
+                    'query': {
+                        'match': {
+                            'titleBlob.english': {
+                                'query': search_term,
+                                'operator': 'or',
+                                'minimum_should_match': '90%'
+                            }
+                        }
+                    }
+                }
+            response = self.http_client.queryWithBody(url, body)
+        elif(tbParams['legacy']):
+            body = {
+                'query': {
+                    'function_score': {
+                        'query': { 
+                            'term': {
+                                'titleBlob.english': search_term
+                            }
+                        },
+                        'script_score': {
+                         'script': {
+                            'source': "doc['searchScore'].value"
+                         }
+                        }
+                    }
+                }
+            }
+            response = self.http_client.queryWithBody(url, body)
+        else:
+            response = self.http_client.query(q)
         end = time.time() - start
         response["responseTime"] = end
         return response

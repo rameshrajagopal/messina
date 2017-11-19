@@ -55,7 +55,10 @@ def toBool(str):
     return True if str == 'true' else False
 
 def getTBParams(request):
-    params = {}
+    params = {
+        'analyzer': False,
+        'legacy': False
+    }
     try:
         params = {
             'analyzer': toBool(request.query['tb_params[analyzer]']),

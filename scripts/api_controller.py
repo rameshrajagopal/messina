@@ -45,7 +45,6 @@ class Worker(Thread):
 
 class ApiController(object):
     def __init__(self, api_host, gatsby_host, alias_host, thunderbird_host, num_threads):
-        print("test")
         self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
         self.page_size = 500
         self.country_code = 356
@@ -65,12 +64,20 @@ class ApiController(object):
             worker.daemon = True
             worker.start()
 
+    def formatTBResponse(self, response):
+        tmp = list()
+        for res in response['hits']['hits']:
+            result = res['_source']
+            result['searchScore'] = res['_score']
+            tmp.append(result)
+        return tmp
+
     def getProducts(self, search_term, sort_by, stores, tbParams):
         alias_response = self.alias_service.getAlias(search_term)
         start = time.time()
         thunderbird_response = self.thunderbird_service.getTBAlias(search_term, tbParams)
         end = time.time() - start
-        thunderbird_response = list(map( lambda x: x["_source"], thunderbird_response["hits"]["hits"]))
+        thunderbird_response = self.formatTBResponse(thunderbird_response)
         corrected_search_term = alias_response['correctedQ']
         if len(corrected_search_term) == 0:
             corrected_search_term = search_term

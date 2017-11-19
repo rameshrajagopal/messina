@@ -17,7 +17,7 @@ class HttpClient(object):
             return res.json()
         except Exception as e:
             print e
-        return ""
+        return {}
 
     def queryWithBody(self, url, body):
         try:
@@ -27,7 +27,7 @@ class HttpClient(object):
             return res.json()
         except Exception as e:
             print e
-        return ""
+        return {}
 
     def postQuery(self, url, headers, params):
         try:
@@ -38,4 +38,4 @@ class HttpClient(object):
             return res.json()
         except Exception as e:
             print e
-        return ""
+        return {}
