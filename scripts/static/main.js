@@ -20,6 +20,7 @@ function populateProducts (products) {
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+product.mpid+'</div>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -60,6 +61,7 @@ function populateProductsByType (type, products, responseTime) {
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+product.mpid+'</div>'+
         '</div>'+
       '</div>'+
     '</div>'+
