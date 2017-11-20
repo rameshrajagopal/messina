@@ -175,8 +175,8 @@ class DataCollector(object):
                 'query': {
                     'function_score': {
                         'query': { 
-                            'term': {
-                                'titleBlob.english': search_term
+                            'match': {
+                                'titleBlob': search_term
                             }
                         },
                         'script_score': {
