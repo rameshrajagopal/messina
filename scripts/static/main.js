@@ -123,6 +123,7 @@ function query () {
   var q = $("#query").val();
   var sortBy = $('select[name="sort_by"]').val();
   var storeIds = $('#store_id').val();
+  var useQas = $('select[name="qas"]').val();
 
   if (!q) {
       alert("Please enter valid search term!!!");
@@ -132,7 +133,8 @@ function query () {
   var params = {
     q: q,
     sort_by: sortBy,
-    store_ids: storeIds.join(',')
+    store_ids: storeIds.join(','),
+    qas: useQas
   };
   console.log(params);
 

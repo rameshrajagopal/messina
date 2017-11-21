@@ -47,6 +47,7 @@ class ProductGatsbyQuery(object):
         self.payload = {"select" : select_clause,
                         "geo": country_code,
                         "traceId" : 1122334455,
+                        "useBrandPredictor": True,
                         "productsWhere" : "geo == 356 && (storeId == 2776 || storeId == 4919 || storeId == 6078 || storeId == 5119 || storeId == 4443)",
                         "productPageSize" : page_size,
                         "filterStores" : [2776, 4919, 6078, 5119, 4443],
@@ -84,8 +85,9 @@ class ProductGatsbyQuery(object):
             return prefix + where_clause
         return where_clause
 
-    def getQuery(self, search_term, store_ids):
+    def getQuery(self, search_term, store_ids, useQas):
         self.payload["searchText"] = search_term
+        self.payload["useQas"] = useQas
         timestamp = int(time.mktime((datetime.now() - timedelta(days=self.n_days)).timetuple()) * 1000)
         self.payload["offersWhere"] = "availability == 0 && timestamp > %s" % (timestamp)
         self.payload["productsWhere"] = "geo == 356" + self._buildWhereClauseWithStores(store_ids);
@@ -103,8 +105,8 @@ class DataCollector(object):
         self.query = query
         self.http_client = HttpClient()
 
-    def post(self, search_term, store_ids):
-        q = self.query.getQuery(search_term, store_ids)
+    def post(self, search_term, store_ids, useQas):
+        q = self.query.getQuery(search_term, store_ids, useQas)
         response = self.http_client.postQuery(q[0], q[1], q[2])
         return response
 

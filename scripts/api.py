@@ -57,13 +57,20 @@ def tag():
     try:
         sort_by = request.params.get('sort_by')
         stores  = request.params.get('store_ids')
+        useQas = request.params.get('qas')
         response.content_type = "application/json; charset=UTF-8"
         response.headers['Access-Control-Allow-Origin'] = "*"
         if sort_by == "0":
             sort = False
         else:
             sort = True
-        res = api_controller.getProducts(q, sort, stores)
+
+        if useQas == "0":
+            qas = True
+        else:
+            qas = False
+
+        res = api_controller.getProducts(q, sort, stores, qas)
         return res
     except:
         abort(500, traceback.format_exc())
