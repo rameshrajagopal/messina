@@ -6,8 +6,8 @@ var ixSearchUrl = "https://api.indix.com/v2.1/search?app_key="+app_key;
 function populateProducts (products) {
   $("#products").empty();
   products.forEach(function (product) {
-    $("#products").append('<div class="col-6 col-lg-4">'+
-      '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
+    $("#products").append('<div class="col-4 col-lg-4">'+
+      '<img style="height:200px; width: 80px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
       '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
@@ -25,13 +25,15 @@ function populateProductsByType (type, products) {
   switch (type) {
     case 'api':
       dom = $('#apiProducts'); break;
+    case 'gatsbyBP':
+      dom = $('#gatsbyBPproducts'); break;
     case 'gatsby':
       dom = $('#gatsbyProducts'); break;
   }
   dom.empty();
   products.forEach(function (product) {
     dom.append('<div class="col-lg-4">'+
-      '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
+      '<img style="height:200px; width: 80px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
       '<span style="font-family: Arial; font-size: 11px;">by '+product.brandName+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">mpid '+product.mpid+'<br>'+
@@ -143,6 +145,7 @@ function query () {
       $('.btn-search').text(searchText);
       populateProductsByType('api', resp.api.products)
       populateProductsByType('gatsby', resp.gatsby.products)
+      populateProductsByType('gatsbyBP', resp.gatsbyBP.products)
    })
 }
 

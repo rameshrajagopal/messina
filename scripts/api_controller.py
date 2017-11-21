@@ -4,7 +4,7 @@ from threading import Thread
 from Queue import Queue
 
 class SearchQuery(object):
-    def __init__(self, search_term, sort_by, key, result_q, post_query, store_ids, useQas):
+    def __init__(self, search_term, sort_by, key, result_q, post_query, store_ids, useQas, useBrand):
         self.search_term = search_term
         self.sort_by = sort_by
         self.key     = key
@@ -12,10 +12,12 @@ class SearchQuery(object):
         self.is_post_query = post_query
         self.store_ids = store_ids
         self.useQas = useQas
+        self.useBrandPredictor = useBrand
+        print "useBrand : "+str(useBrand)
 
     def __str__(self):
-        return "q=%s,sort_by=%s,key=%s,post_query=%s, store_ids=%s, useQas=%s" % (self.search_term, self.sort_by,
-                self.key, self.is_post_query, self.store_ids, self.useQas)
+        return "q=%s,sort_by=%s,key=%s,post_query=%s, store_ids=%s, useQas=%s, useBrandPredictor=%s" % (self.search_term,
+                self.sort_by, self.key, self.is_post_query, self.store_ids, self.useQas, self.useBrandPredictor)
 
 class Worker(Thread):
     def __init__(self, data_collector, ranking_model, queries):
@@ -28,7 +30,7 @@ class Worker(Thread):
         while True:
             query = self.queries.get()
             if query.is_post_query:
-                products = self.data_collector.post(query.search_term, query.store_ids, query.useQas)
+                products = self.data_collector.post(query.search_term, query.store_ids, query.useQas, query.useBrandPredictor)
             else:
                 products = self.data_collector.get(query.search_term, query.store_ids)
             if query.is_post_query and query.sort_by:
@@ -69,13 +71,15 @@ class ApiController(object):
         if len(corrected_search_term) == 0:
             corrected_search_term = search_term
         store_ids = [store.strip() for store in stores.split(",") if store != '']
-        resutl_q = Queue(2)
-        api_q = SearchQuery(corrected_search_term, sort_by, "api", resutl_q, False, store_ids, True)
-        gatsby_q = SearchQuery(corrected_search_term, sort_by, "gatsby", resutl_q, True, store_ids, useQas)
+        resutl_q = Queue(3)
+        api_q = SearchQuery(corrected_search_term, sort_by, "api", resutl_q, False, store_ids, True, False)
+        gatsby_q = SearchQuery(corrected_search_term, sort_by, "gatsby", resutl_q, True, store_ids, useQas, False)
+        gatsbyBP_q = SearchQuery(corrected_search_term, sort_by, "gatsbyBP", resutl_q, True, store_ids, useQas, True)
         self.gatsby_queries.put(gatsby_q)
+        self.gatsby_queries.put(gatsbyBP_q)
         self.api_queries.put(api_q)
         result = {}
-        for num_result in range(2):
+        for num_result in range(3):
             res = resutl_q.get()
             for key,value in res.items():
                 result[key] = value
