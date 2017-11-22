@@ -145,10 +145,13 @@ class DataCollector(object):
 
         tmpSrt = sorted(tmp, key=lambda x: x['value'])
 
-        for i, val in enumerate(tmp):
+        for i, val in enumerate(tmpSrt):
             result.append({
                 'match': {
-                    'categoryNamePath': val['key']
+                    'categoryNamePath': {
+                        'query' : val['key'],
+                        'boost': i+1
+                    }
                 }
             })
         return result
@@ -159,8 +162,6 @@ class DataCollector(object):
         qasRes = self.formatQAS(qas['taxonomies'])
 
 
-        print(qasRes)
-        
         q = self.query.getQuery(search_term)
         start = time.time()
         if tbParams['analyzer']:
@@ -181,7 +182,7 @@ class DataCollector(object):
                             },
                             'script_score': {
                              'script': {
-                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score);"
+                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score + doc['searchScore'].value + num/len);"
                              }
                             }
                         }
