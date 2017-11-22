@@ -135,6 +135,7 @@ class DataCollector(object):
         return response
 
     def formatQAS(self, data):
+        cutoff = 3
         result = list()
         tmp = list()
         for key in data[0].keys():
@@ -143,14 +144,14 @@ class DataCollector(object):
                 'value': data[0][key]
             })
 
-        tmpSrt = sorted(tmp, key=lambda x: x['value'])
+        tmpSrt = sorted(tmp, key=lambda x: x['value'], reverse=True)[:cutoff]
 
         for i, val in enumerate(tmpSrt):
             result.append({
                 'match': {
                     'categoryNamePath': {
                         'query' : val['key'],
-                        'boost': i+1
+                        'boost': val['value']*10
                     }
                 }
             })
@@ -182,7 +183,7 @@ class DataCollector(object):
                             },
                             'script_score': {
                              'script': {
-                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score + doc['searchScore'].value + num/len);"
+                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score + doc['searchScore'].value/10 + num/len);"
                              }
                             }
                         }
