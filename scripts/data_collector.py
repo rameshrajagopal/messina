@@ -136,40 +136,52 @@ class DataCollector(object):
 
     def formatQAS(self, data):
         result = list()
+        tmp = list()
         for key in data[0].keys():
+            tmp.append({
+                'key': str(key),
+                'value': data[0][key]
+            })
+
+        tmpSrt = sorted(tmp, key=lambda x: x['value'])
+
+        for i, val in enumerate(tmp):
             result.append({
                 'match': {
-                    'categoryNamePath': str(key),
-                    'boost': str(data[0][key])*10
+                    'categoryNamePath': val['key']
                 }
-            }) 
+            })
         return result
     def getTBAlias(self, search_term, tbParams):
         url = 'http://10.181.27.114:9200/dev/test1/_search?size=500'
         qas = self.http_client.query('http://test-qas01.production.indix.tv:8080/api/annotate?q='+search_term)
 
         qasRes = self.formatQAS(qas['taxonomies'])
-        print()
+
+
+        print(qasRes)
         
         q = self.query.getQuery(search_term)
         start = time.time()
         if tbParams['analyzer']:
             if tbParams['legacy']:
+                print("\n\n\nanalyzer with legacy")
                 body = {
                     'query': {
                         'function_score': {
                             'query': {
                                 'bool':{
-                                    'should': qasRes.append({
+                                    'must': qasRes,
+                                    'should': {
                                         'match': {
                                             'titleBlob.english': search_term
                                         }
-                                    })
+                                    }
                                 }
                             },
                             'script_score': {
                              'script': {
-                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value/10 + (num/len));"
+                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score);"
                              }
                             }
                         }
@@ -177,43 +189,49 @@ class DataCollector(object):
                 }
 
             else:
+                print("\n\n\n only analyzer ")
+
                 body = {
                     'query': {
-                        'match': {
-                            'titleBlob.english': {
-                                'query': search_term,
-                                'operator': 'or',
-                                'minimum_should_match': '90%'
-                            }
+                        'bool':{
+                            'must': qasRes,
+                            'should': [{
+                                'match': {
+                                    'titleBlob.english': search_term
+                                }
+                            }]
                         }
                     }
                 }
             response = self.http_client.queryWithBody(url, body)
         elif(tbParams['legacy']):
+            print("\n\n\nonly legacy")
+
             body = {
                 'query': {
                     'function_score': {
                         'query': {
                             'bool': {
-                                'should': qasRes.append({
+                                'must': qasRes,
+                                'should': {
                                     'match': {
                                         'titleBlob': search_term
                                     }
-                                })
+                                }
                             }
                         },
                         'script_score': {
                          'script': {
-                            'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len*100));"
+                            'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len));"
                          }
                         }
                     }
                 }
             }
-
-            print(body)
             response = self.http_client.queryWithBody(url, body)
         else:
+            print("\n\n\nNone")
+
             response = self.http_client.query(q)
         end = time.time() - start
         response["responseTime"] = end
