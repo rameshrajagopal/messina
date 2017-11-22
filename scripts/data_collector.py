@@ -134,8 +134,23 @@ class DataCollector(object):
         response["responseTime"] = end
         return response
 
+    def formatQAS(self, data):
+        result = list()
+        for key in data[0].keys():
+            result.append({
+                'match': {
+                    'categoryNamePath': str(key),
+                    'boost': str(data[0][key])*10
+                }
+            }) 
+        return result
     def getTBAlias(self, search_term, tbParams):
         url = 'http://10.181.27.114:9200/dev/test1/_search?size=500'
+        qas = self.http_client.query('http://test-qas01.production.indix.tv:8080/api/annotate?q='+search_term)
+
+        qasRes = self.formatQAS(qas['taxonomies'])
+        print()
+        
         q = self.query.getQuery(search_term)
         start = time.time()
         if tbParams['analyzer']:
@@ -143,14 +158,18 @@ class DataCollector(object):
                 body = {
                     'query': {
                         'function_score': {
-                            'query': { 
-                                'match': {
-                                    'titleBlob.english': search_term
+                            'query': {
+                                'bool':{
+                                    'should': qasRes.append({
+                                        'match': {
+                                            'titleBlob.english': search_term
+                                        }
+                                    })
                                 }
                             },
                             'script_score': {
                              'script': {
-                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len*100));"
+                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value/10 + (num/len));"
                              }
                             }
                         }
@@ -174,9 +193,13 @@ class DataCollector(object):
             body = {
                 'query': {
                     'function_score': {
-                        'query': { 
-                            'match': {
-                                'titleBlob': search_term
+                        'query': {
+                            'bool': {
+                                'should': qasRes.append({
+                                    'match': {
+                                        'titleBlob': search_term
+                                    }
+                                })
                             }
                         },
                         'script_score': {
