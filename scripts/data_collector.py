@@ -135,7 +135,7 @@ class DataCollector(object):
         return response
 
     def getTBAlias(self, search_term, tbParams):
-        url = 'http://10.181.27.25:9200/dev/test1/_search?size=500'
+        url = 'http://10.181.27.114:9200/dev/test1/_search?size=500'
         q = self.query.getQuery(search_term)
         start = time.time()
         if tbParams['analyzer']:
@@ -150,7 +150,7 @@ class DataCollector(object):
                             },
                             'script_score': {
                              'script': {
-                                'source': "doc['searchScore'].value"
+                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len*100));"
                              }
                             }
                         }
@@ -181,12 +181,14 @@ class DataCollector(object):
                         },
                         'script_score': {
                          'script': {
-                            'source': "doc['searchScore'].value"
+                            'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len*100));"
                          }
                         }
                     }
                 }
             }
+
+            print(body)
             response = self.http_client.queryWithBody(url, body)
         else:
             response = self.http_client.query(q)
