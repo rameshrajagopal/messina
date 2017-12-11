@@ -51,7 +51,7 @@ class ApiController(object):
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
         self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
         self.alias_service = DataCollector(ProductAliasQuery("http", alias_host, "/search", "IN"))
-        self.thunderbird_service = DataCollector(ProductThunderbirdQuery("http", thunderbird_host, 9200, "/_search"))
+        self.thunderbird_service = DataCollector(ProductThunderbirdQuery("http", thunderbird_host, 9200, "/dev/test1/_search"))
         self.ranking_model = RankingModel()
         self.gatsby_queries = Queue()
         self.api_queries    = Queue()

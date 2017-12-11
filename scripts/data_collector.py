@@ -22,8 +22,8 @@ class ProductThunderbirdQuery(object):
     def __init__(self, schme, host, port, endpoint):
         self.query = ThunderBirdQuery(schme, host, port, endpoint)
 
-    def getQuery(self, search_term):
-        return self.query.getSearchQuery(search_term)
+    def getQuery(self, search_term, tbParams, qasRes):
+        return self.query.getTBAlias(search_term, tbParams, qasRes)
 
 class ProductApiQuery(object):
     def __init__(self, scheme, host, endpoint, country_code, page_size, n_days=30, url_params={}):
@@ -156,85 +156,13 @@ class DataCollector(object):
                 }
             })
         return result
+    
     def getTBAlias(self, search_term, tbParams):
-        url = 'http://10.181.27.114:9200/dev/test1/_search?size=500'
         qas = self.http_client.query('http://test-qas01.production.indix.tv:8080/api/annotate?q='+search_term)
-
         qasRes = self.formatQAS(qas['taxonomies'])
-
-
-        q = self.query.getQuery(search_term)
+        url, body = self.query.getQuery(search_term, tbParams, qasRes)
         start = time.time()
-        if tbParams['analyzer']:
-            if tbParams['legacy']:
-                print("\n\n\nanalyzer with legacy")
-                body = {
-                    'query': {
-                        'function_score': {
-                            'query': {
-                                'bool':{
-                                    'must': qasRes,
-                                    'should': {
-                                        'match': {
-                                            'titleBlob.english': search_term
-                                        }
-                                    }
-                                }
-                            },
-                            'script_score': {
-                             'script': {
-                                'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score + doc['searchScore'].value/10 + num/len);"
-                             }
-                            }
-                        }
-                    }
-                }
-
-            else:
-                print("\n\n\n only analyzer ")
-
-                body = {
-                    'query': {
-                        'bool':{
-                            'must': qasRes,
-                            'should': [{
-                                'match': {
-                                    'titleBlob.english': search_term
-                                }
-                            }]
-                        }
-                    }
-                }
-            response = self.http_client.queryWithBody(url, body)
-        elif(tbParams['legacy']):
-            print("\n\n\nonly legacy")
-
-            body = {
-                'query': {
-                    'function_score': {
-                        'query': {
-                            'bool': {
-                                'must': qasRes,
-                                'should': {
-                                    'match': {
-                                        'titleBlob': search_term
-                                    }
-                                }
-                            }
-                        },
-                        'script_score': {
-                         'script': {
-                            'source': "def str = doc['titleBlob.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len));"
-                         }
-                        }
-                    }
-                }
-            }
-            response = self.http_client.queryWithBody(url, body)
-        else:
-            print("\n\n\nNone")
-
-            response = self.http_client.query(q)
+        response = self.http_client.queryWithBody(url, body)
         end = time.time() - start
         response["responseTime"] = end
         return response

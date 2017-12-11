@@ -72,7 +72,6 @@ def getTBParams(request):
 def tag():
     q = request.query['q']
     tbParams = getTBParams(request)
-    print(tbParams)
     try:
         sort_by = request.params.get('sort_by')
         stores  = request.params.get('store_ids')

@@ -1,7 +1,7 @@
 api_url_holder = "%s://%s%s?app_key=%s&app_id=%s&countryCode=%s&pageSize=%s"
 classify_url_holder = "%s://%s%s?"
 alias_url_holder = "%s://%s%s?"
-thunderbird_url_holder = "%s://%s:%s%s?"
+thunderbird_url_holder = "%s://%s:%s%s?%s"
 
 class Query(object):
     def __init__(self):
@@ -43,9 +43,75 @@ class AliasQuery(Query):
 
 class ThunderBirdQuery(Query):
     def __init__(self, scheme, host, port, endpoint):
-        self.url = thunderbird_url_holder % (scheme, host, port, endpoint)
+        self.url = thunderbird_url_holder % (scheme, host, port, endpoint, "size=500")
 
     def getSearchQuery(self, search_term):
-        query = self.url + "q=%s" % search_term + "&size=500"
+        query = self.url + "&q=%s" % search_term
         return query
+
+    def getTBAlias(self, search_term, tbParams, qasRes):
+        q = self.getSearchQuery(search_term)
+        if tbParams['analyzer']:
+            if tbParams['legacy']:
+                body = {
+                    'query': {
+                        'function_score': {
+                            'query': {
+                                'bool':{
+                                    'must': qasRes,
+                                    'should': {
+                                        'match': {
+                                            'title.english': search_term
+                                        }
+                                    }
+                                }
+                            },
+                            'script_score': {
+                             'script': {
+                                'source': "def str = doc['title.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score + doc['searchScore'].value/10 + num/len);"
+                             }
+                            }
+                        }
+                    }
+                }
+
+            else:
+                body = {
+                    'query': {
+                        'bool':{
+                            'must': qasRes,
+                            'should': [{
+                                'match': {
+                                    'title.english': search_term
+                                }
+                            }]
+                        }
+                    }
+                }
+        elif(tbParams['legacy']):
+            body = {
+                'query': {
+                    'function_score': {
+                        'query': {
+                            'bool': {
+                                'must': qasRes,
+                                'should': {
+                                    'match': {
+                                        'title': search_term
+                                    }
+                                }
+                            }
+                        },
+                        'script_score': {
+                         'script': {
+                            'source': "def str = doc['title.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (doc['searchScore'].value + (num/len));"
+                         }
+                        }
+                    }
+                }
+            }
+        else:
+            body = ""
+        
+        return [self.url, body]
 
