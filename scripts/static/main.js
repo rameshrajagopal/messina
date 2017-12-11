@@ -10,17 +10,17 @@ function populateProducts (products) {
     $("#products").append('<div class="col-sm-12 p-card">'+
     '<div class="row">'+
       '<div class="thumbnail col-sm-4 text-center">'+
-        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
+        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.modelImageUrl +'"/>'+
       '</div>'+
       '<div class="caption col-sm-8">'+
         '<div style="font-family: Arial; font-size: 16px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap;">'+ product.title +'</div>'+
         '<span style="font-family: Arial; font-size: 11px;">'+product.categoryNamePath+'</span>'+
-        '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'</span>'+
-        '<span> RatingCount '+ product.aggregatedRatings.ratingCount + '</span><span> RatingValue '+ product.aggregatedRatings.ratingValue +'</span>'+
+        // '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'</span>'+
+        // '<span> RatingCount '+ product.aggregatedRatings.ratingCount + '</span><span> RatingValue '+ product.aggregatedRatings.ratingValue +'</span>'+
         '<div class="clearfix">'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
-          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
+          // '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+(product.mpid || regex.exec(decodeURIComponent(product.detailsUrl))[1])+'</div>'+
         '</div>'+
       '</div>'+
@@ -52,17 +52,17 @@ function populateProductsByType (type, products, responseTime) {
     dom.append('<div class="col-sm-12 p-card">'+
     '<div class="row">'+
       '<div class="thumbnail col-sm-4 text-center">'+
-        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
+        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.modelImageUrl +'"/>'+
       '</div>'+
       '<div class="caption col-sm-8">'+
         '<p><div style="font-family: Arial; font-size: 16px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap;">'+ product.title +'</div>'+
         '<span style="font-family: Arial; font-size: 11px;">'+product.categoryNamePath+'<br>'+
-        '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'</span>'+
-        '<span> RatingCount '+ product.aggregatedRatings.ratingCount + '</span><span> RatingValue '+ product.aggregatedRatings.ratingValue +'</span></p>'+
+        // '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'</span>'+
+        // '<span> RatingCount '+ product.aggregatedRatings.ratingCount + '</span><span> RatingValue '+ product.aggregatedRatings.ratingValue +'</span></p>'+
         '<div class="clearfix">'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
-          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
+          // '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+(product.mpid || regex.exec(decodeURIComponent(product.detailsUrl))[1])+'</div>'+
         '</div>'+
       '</div>'+

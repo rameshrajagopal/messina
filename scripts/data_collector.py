@@ -162,7 +162,7 @@ class DataCollector(object):
         qasRes = self.formatQAS(qas['taxonomies'])
         url, body = self.query.getQuery(search_term, tbParams, qasRes)
         start = time.time()
-        response = self.http_client.queryWithBody(url, body)
+        response = self.http_client.queryWithBody(url, body) if(body !="") else self.http_client.query(url)
         end = time.time() - start
         response["responseTime"] = end
         return response

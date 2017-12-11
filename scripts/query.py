@@ -43,7 +43,7 @@ class AliasQuery(Query):
 
 class ThunderBirdQuery(Query):
     def __init__(self, scheme, host, port, endpoint):
-        self.url = thunderbird_url_holder % (scheme, host, port, endpoint, "size=500")
+        self.url = thunderbird_url_holder % (scheme, host, port, endpoint, "size=100")
 
     def getSearchQuery(self, search_term):
         query = self.url + "&q=%s" % search_term
