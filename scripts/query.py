@@ -52,23 +52,23 @@ class ThunderBirdQuery(Query):
     def getTBAlias(self, search_term, tbParams, qasRes):
         q = self.getSearchQuery(search_term)
         if tbParams['analyzer']:
+            qasRes.append({
+                'match': {
+                    'title.english': search_term
+                }
+            })
             if tbParams['legacy']:
                 body = {
                     'query': {
                         'function_score': {
                             'query': {
                                 'bool':{
-                                    'must': qasRes,
-                                    'should': {
-                                        'match': {
-                                            'title.english': search_term
-                                        }
-                                    }
+                                    'should': qasRes
                                 }
                             },
                             'script_score': {
                              'script': {
-                                'source': "def str = doc['title.keyword'].value; int len = str.length(); int num=" + str(len(search_term.split(" "))) + "; return (_score + doc['searchScore'].value/10 + num/len);"
+                                'source': "return (_score + doc['searchScore'].value/10);"
                              }
                             }
                         }
@@ -79,27 +79,22 @@ class ThunderBirdQuery(Query):
                 body = {
                     'query': {
                         'bool':{
-                            'must': qasRes,
-                            'should': [{
-                                'match': {
-                                    'title.english': search_term
-                                }
-                            }]
+                            'should': qasRes
                         }
                     }
                 }
         elif(tbParams['legacy']):
+            qasRes.append({
+                'match': {
+                    'title': search_term
+                }
+            })
             body = {
                 'query': {
                     'function_score': {
                         'query': {
                             'bool': {
-                                'must': qasRes,
-                                'should': {
-                                    'match': {
-                                        'title': search_term
-                                    }
-                                }
+                                'should': qasRes
                             }
                         },
                         'script_score': {

@@ -138,9 +138,10 @@ class DataCollector(object):
         cutoff = 3
         result = list()
         tmp = list()
+        
         for key in data[0].keys():
             tmp.append({
-                'key': str(key),
+                'key': key,
                 'value': data[0][key]
             })
 
@@ -159,7 +160,7 @@ class DataCollector(object):
     
     def getTBAlias(self, search_term, tbParams):
         qas = self.http_client.query('http://test-qas01.production.indix.tv:8080/api/annotate?q='+search_term)
-        qasRes = self.formatQAS(qas['taxonomies'])
+        qasRes = self.formatQAS(qas.get('taxonomies', [{}]))
         url, body = self.query.getQuery(search_term, tbParams, qasRes)
         start = time.time()
         response = self.http_client.queryWithBody(url, body) if(body !="") else self.http_client.query(url)
@@ -200,7 +201,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 4:
         print "Wrong usage"
         sys.exit(-1)
-    select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
+    select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image, sku"
     page_size = 50
     country_code = 356
     if (sys.argv[3] == 'api'):

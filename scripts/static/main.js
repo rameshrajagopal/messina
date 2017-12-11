@@ -10,7 +10,7 @@ function populateProducts (products) {
     $("#products").append('<div class="col-sm-12 p-card">'+
     '<div class="row">'+
       '<div class="thumbnail col-sm-4 text-center">'+
-        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.modelImageUrl +'"/>'+
+        '<img style="max-height:100px;padding-left: 10px;" src="'+ (product.image ? product.image.url : product.modelImageUrl) +'"/>'+
       '</div>'+
       '<div class="caption col-sm-8">'+
         '<div style="font-family: Arial; font-size: 16px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap;">'+ product.title +'</div>'+
@@ -22,6 +22,7 @@ function populateProducts (products) {
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
           // '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+(product.mpid || regex.exec(decodeURIComponent(product.detailsUrl))[1])+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">sku: '+ product.sku+'</div>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -35,15 +36,15 @@ function populateProductsByType (type, products, responseTime) {
   switch (type) {
     case 'api':
       dom = $('#apiProducts'); 
-      $("#api_time").text(`( ${responseTime.toFixed(2)} ms )`);
+      $("#api_time").text(`( ${responseTime.toFixed(2)} s )`);
       break;
     case 'gatsby':
       dom = $('#gatsbyProducts'); 
-      $("#gatsby_time").text(`( ${responseTime.toFixed(2)} ms )`)
+      $("#gatsby_time").text(`( ${responseTime.toFixed(2)} s )`)
       break;
     case 'thunderbird':
       dom = $('#thunderbird'); 
-      $("#thunderbird_time").text(`( ${responseTime.toFixed(2)} ms )`)
+      $("#thunderbird_time").text(`( ${responseTime.toFixed(2)} s )`)
       break;
   }
   dom.empty();
@@ -52,7 +53,7 @@ function populateProductsByType (type, products, responseTime) {
     dom.append('<div class="col-sm-12 p-card">'+
     '<div class="row">'+
       '<div class="thumbnail col-sm-4 text-center">'+
-        '<img style="max-height:100px;padding-left: 10px;" src="'+ product.modelImageUrl +'"/>'+
+        '<img style="max-height:100px;padding-left: 10px;" src="'+ (product.image ? product.image.url : product.modelImageUrl) +'"/>'+
       '</div>'+
       '<div class="caption col-sm-8">'+
         '<p><div style="font-family: Arial; font-size: 16px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap;">'+ product.title +'</div>'+
@@ -64,6 +65,7 @@ function populateProductsByType (type, products, responseTime) {
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
           // '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+(product.mpid || regex.exec(decodeURIComponent(product.detailsUrl))[1])+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">sku: '+ product.sku+'</div>'+
         '</div>'+
       '</div>'+
     '</div>'+

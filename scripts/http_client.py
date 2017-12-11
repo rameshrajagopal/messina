@@ -20,6 +20,7 @@ class HttpClient(object):
         return {}
 
     def queryWithBody(self, url, body):
+        print(json.dumps(body))
         try:
             res = requests.get(url, data=json.dumps(body), headers={'content-type': 'application/json'})
             if res.status_code != HTTP_SUCCESS:

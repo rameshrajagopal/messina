@@ -45,7 +45,7 @@ class Worker(Thread):
 
 class ApiController(object):
     def __init__(self, api_host, gatsby_host, alias_host, thunderbird_host, num_threads):
-        self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image"
+        self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image, sku"
         self.page_size = 500
         self.country_code = 356
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
