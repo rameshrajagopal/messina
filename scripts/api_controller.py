@@ -46,12 +46,12 @@ class Worker(Thread):
 class ApiController(object):
     def __init__(self, api_host, gatsby_host, alias_host, thunderbird_host, num_threads):
         self.select_clause = "mpidStr AS \'mpid\', priceRange, aggregatedRatings, modelTitle AS \'title\', brandName, categoryNamePath, searchScore, brandName, storeId, image, sku"
-        self.page_size = 500
+        self.page_size = 50
         self.country_code = 356
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
-        self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
+        self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", self.page_size)
         self.alias_service = DataCollector(ProductAliasQuery("http", alias_host, "/search", "IN"))
-        self.tb_query = ProductApiQuery("http", thunderbird_host, "/v2.1/search", "IN", 50)
+        self.tb_query = ProductApiQuery("http", thunderbird_host, "/v2.1/search", "IN", self.page_size)
         # self.thunderbird_service = DataCollector(ProductThunderbirdQuery("http", thunderbird_host, 9200, "/dev/test1/_search"))
         self.ranking_model = RankingModel()
         self.gatsby_queries = Queue()
