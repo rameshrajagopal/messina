@@ -50,6 +50,7 @@ function populateProductsByType (type, products, responseTime) {
   dom.empty();
   products.forEach(function (product) {
     regex.lastIndex = 0
+    const mpid = regex.exec(decodeURIComponent(product.detailsUrl || ""))
     dom.append('<div class="col-sm-12 p-card">'+
     '<div class="row">'+
       '<div class="thumbnail col-sm-4 text-center">'+
@@ -64,7 +65,7 @@ function populateProductsByType (type, products, responseTime) {
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">'+product.brandName+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'</div>'+
           // '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">$'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</div>'+
-          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+(product.mpid || regex.exec(decodeURIComponent(product.detailsUrl))[1])+'</div>'+
+          '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">mpid: '+(product.mpidStr || ((mpid != null) ? mpid[1] : ""))+'</div>'+
           '<div class="tags float-left" style="font-family: Arial; font-size: 11px;">sku: '+ (product.sku ? product.sku : Object.keys(product.stores || {})[0] ? (((product.stores[Object.keys(product.stores || {})[0]] || {}).offers || [])[0] || {}).sku : undefined) +'</div>'+
         '</div>'+
       '</div>'+
@@ -176,7 +177,7 @@ function query () {
       $('.btn-search').text(searchText);
       populateProductsByType('api', resp.api.products, resp.api.responseTime)
       populateProductsByType('gatsby', resp.gatsby.products, resp.gatsby.responseTime)
-      populateProductsByType('thunderbird', resp.thunderbird.products, resp.thunderbird.responseTime)
+      populateProductsByType('thunderbird', resp.tb_api.products, resp.tb_api.responseTime)
    })
 }
 

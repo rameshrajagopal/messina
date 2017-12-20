@@ -45,6 +45,7 @@ class ProductApiQuery(object):
 
     def getQuery(self, term, store_ids):
         url = self.query.getSearchQuery(term) + "&" + urllib.urlencode(self.url_params) + self._buildWhereClauseWithStores(store_ids)
+        print(url + "\n\n")
         return url
 
 class ProductGatsbyQuery(object):
@@ -103,7 +104,6 @@ class ProductGatsbyQuery(object):
             self.payload["filterStores"] = []
             self.payload["projectionStores"] = []
         return (self.url, self.headers, self.payload)
-
 
 class DataCollector(object):
     def __init__(self, query):

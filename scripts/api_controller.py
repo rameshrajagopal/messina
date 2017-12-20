@@ -51,16 +51,22 @@ class ApiController(object):
         self.gatsby_query  = ProductGatsbyQuery(self.select_clause, self.page_size, self.country_code, "/products/search2", gatsby_host)
         self.api_query     = ProductApiQuery("http", api_host, "/v2.1/search", "IN", 50)
         self.alias_service = DataCollector(ProductAliasQuery("http", alias_host, "/search", "IN"))
-        self.thunderbird_service = DataCollector(ProductThunderbirdQuery("http", thunderbird_host, 9200, "/dev/test1/_search"))
+        self.tb_query = ProductApiQuery("http", thunderbird_host, "/v2.1/search", "IN", 50)
+        # self.thunderbird_service = DataCollector(ProductThunderbirdQuery("http", thunderbird_host, 9200, "/dev/test1/_search"))
         self.ranking_model = RankingModel()
         self.gatsby_queries = Queue()
         self.api_queries    = Queue()
+        self.tb_queries = Queue()
         for thread in range(num_threads):
             worker = Worker(DataCollector(self.gatsby_query), self.ranking_model, self.gatsby_queries)
             worker.daemon = True
             worker.start()
         for thread in range(num_threads):
             worker = Worker(DataCollector(self.api_query), self.ranking_model, self.api_queries)
+            worker.daemon = True
+            worker.start()
+        for thread in range(num_threads):
+            worker = Worker(DataCollector(self.tb_query), self.ranking_model, self.tb_queries)
             worker.daemon = True
             worker.start()
 
@@ -74,24 +80,21 @@ class ApiController(object):
 
     def getProducts(self, search_term, sort_by, stores, tbParams):
         alias_response = self.alias_service.getAlias(search_term)
-        start = time.time()
-        thunderbird_response = self.thunderbird_service.getTBAlias(search_term, tbParams)
-        end = time.time() - start
-        thunderbird_response = self.formatTBResponse(thunderbird_response)
         corrected_search_term = alias_response['correctedQ']
         if len(corrected_search_term) == 0:
             corrected_search_term = search_term
         store_ids = [store.strip() for store in stores.split(",") if store != '']
-        resutl_q = Queue(2)
+        resutl_q = Queue(3)
         api_q = SearchQuery(corrected_search_term, sort_by, "api", resutl_q, False, store_ids)
+        tb_api_q = SearchQuery(search_term, sort_by, "tb_api", resutl_q, False, store_ids)
         gatsby_q = SearchQuery(corrected_search_term, sort_by, "gatsby", resutl_q, True, store_ids)
         self.gatsby_queries.put(gatsby_q)
         self.api_queries.put(api_q)
+        self.tb_queries.put(tb_api_q)
         result = {}
-        for num_result in range(2):
+        for num_result in range(3):
             res = resutl_q.get()
             for key,value in res.items():
                 result[key] = value
 
-        result["thunderbird"] = { "products": thunderbird_response, "responseTime": end }
         return result

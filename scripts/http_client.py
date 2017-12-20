@@ -20,7 +20,7 @@ class HttpClient(object):
         return {}
 
     def queryWithBody(self, url, body):
-        print(json.dumps(body))
+        # print(json.dumps(body))
         try:
             res = requests.get(url, data=json.dumps(body), headers={'content-type': 'application/json'})
             if res.status_code != HTTP_SUCCESS:
@@ -32,7 +32,7 @@ class HttpClient(object):
 
     def postQuery(self, url, headers, params):
         try:
-            print url, " ", headers, " ", json.dumps(params)
+            print url, "\n\n", json.dumps(params), "\n\n"
             res = requests.post(url, headers = headers, data = json.dumps(params))
             if res.status_code != HTTP_SUCCESS:
                 raise Exception("Api Error " + str(res.status_code))
