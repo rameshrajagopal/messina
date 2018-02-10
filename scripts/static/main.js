@@ -3,9 +3,11 @@ var baseUrl = "";
 var app_key = "tSAOAAgliQChZfKp7xSQ6uJmOtePqiL1";
 var ixSearchUrl = "https://api.indix.com/v2.1/search?app_key="+app_key;
 
-function populateProducts (products) {
+function populateProducts (products, count, query) {
+  console.log(query)
   $("#products").empty();
   products.forEach(function (product) {
+    const normalizedScore = ((product.searchScore + 100) * 0.5) + (query.split(" ").length/product.title.split(" ").length * 0.5)
     $("#products").append('<div class="col-6 col-lg-4">'+
       '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
@@ -13,6 +15,7 @@ function populateProducts (products) {
       '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
+      '<span style="font-family: Arial; font-size: 11px;">normalizedScore: '+normalizedScore+'<br>'+
       '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
       'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
       '</div>'
@@ -20,7 +23,7 @@ function populateProducts (products) {
   });
 }
 
-function populateProductsByType (type, products) {
+function populateProductsByType (type, products, query="") {
   var dom;
   switch (type) {
     case 'api':
@@ -30,6 +33,10 @@ function populateProductsByType (type, products) {
   }
   dom.empty();
   products.forEach(function (product) {
+    const normalizedScore  = (query.length>0) ?
+       (((product.searchScore + 100)) + (query.split(" ").length/product.title.split(" ").length * 100)*0.3) + (100/product.aggregatedRatings.ratingCount*0.4) + (100/product.priceRange[1].salePrice*0.3)
+      : 0
+    console.log(normalizedScore)
     dom.append('<div class="col-lg-4">'+
       '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
@@ -38,6 +45,7 @@ function populateProductsByType (type, products) {
       '<span style="font-family: Arial; font-size: 11px;">category '+product.categoryNamePath+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">storeId: '+product.priceRange[0].storeId+'<br>'+
       '<span style="font-family: Arial; font-size: 11px;">searchScore: '+product.searchScore+'<br>'+
+      `${normalizedScore ? '<span style="font-family: Arial; font-size: 11px;">normalizedScore: '+normalizedScore+'<br>' : ''}`+
       '<span style="font-color: red; font-size: 13px;">from $'+ product.priceRange[0].salePrice+' - '+ product.priceRange[1].salePrice +'</span><br>'+
       'RatingCount '+ product.aggregatedRatings.ratingCount + ' RatingValue '+ product.aggregatedRatings.ratingValue +'</p>'+
       '</div>'
@@ -67,7 +75,7 @@ function getProducts(tags, query) {
 
   $.getJSON(ixSearchUrl + queryStr, null, function (resp) {
     console.log("Actual Search ", resp.result);
-    populateProducts(resp.result.products, resp.result.count);
+    populateProducts(resp.result.products, resp.result.count, query);
   });
 
 }
@@ -140,7 +148,7 @@ function query () {
     function (resp) {
       $('.btn-search').text(searchText);
       populateProductsByType('api', resp.api.products)
-      populateProductsByType('gatsby', resp.gatsby.products)
+      populateProductsByType('gatsby', resp.gatsby.products, params.q)
    })
 }
 
