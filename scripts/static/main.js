@@ -32,11 +32,36 @@ function populateProductsByType (type, products, query="") {
       dom = $('#gatsbyProducts'); break;
   }
   dom.empty();
+
+  const popularity_weight = 0.4
+  const relevance_weight = 0.3
+  const saleprice_weight = 0.3
+
+  const max_saleprice = products.reduce((acc, cur) => {
+    const salePrice = cur.valuesForRanking ? parseInt(cur.valuesForRanking.salePrice) : 0
+    return (acc >= salePrice) ? acc : salePrice
+  }, 0)
+
+  const max_relevance_score = products.reduce((acc, cur) => {
+    const relevanceScore = cur.valuesForRanking ? parseInt(cur.valuesForRanking.relevanceScore) :0
+    return (acc >= relevanceScore) ? acc : relevanceScore
+  }, 0)
+
+  const max_popularity_score = products.reduce((acc, cur) => {
+    const popularityScore = cur.valuesForRanking ? parseInt(cur.valuesForRanking.popularityScore) : 0
+    return (acc >= popularityScore) ? acc : popularityScore
+  }, 0)
+
+  const norm_pop_score = (max_popularity_score == 0 ? 0: (100.0)/(max_popularity_score)) * popularity_weight;
+  const norm_rel_score = (max_relevance_score  == 0 ? 0: (100.0)/(max_relevance_score)) * relevance_weight;
+  const norm_sale_price = (max_saleprice == 0 ? 0: (100.0)/(max_saleprice)) * saleprice_weight;
+
+
+
   products.forEach(function (product) {
-    const normalizedScore  = (query.length>0) ?
-       (((product.searchScore + 100)) + (query.split(" ").length/product.title.split(" ").length * 100)*0.3) + (100/product.aggregatedRatings.ratingCount*0.4) + (100/product.priceRange[1].salePrice*0.3)
+    const normalizedScore  = (product.valuesForRanking) ?
+       (product.valuesForRanking.salePrice * norm_sale_price) + (product.valuesForRanking.relevanceScore * norm_rel_score) + (product.valuesForRanking.popularityScore * norm_pop_score)
       : 0
-    console.log(normalizedScore)
     dom.append('<div class="col-lg-4">'+
       '<img style="height:200px; width: 160px;padding-left: 10px;" src="'+ product.image.url +'"/>'+
       '<p><span style="font-family: Arial; font-size: 16px;">'+ product.title +'</span><br>'+
