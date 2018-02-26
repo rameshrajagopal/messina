@@ -92,7 +92,8 @@ class ApiController(object):
         self.api_queries.put(api_q)
         self.tb_queries.put(tb_api_q)
         result = {}
-        for num_result in range(3):
+        for num_result in range(len([self.gatsby_queries, self.api_queries])):#, self.tb_queries])):
+            print "result"
             res = resutl_q.get()
             for key,value in res.items():
                 result[key] = value

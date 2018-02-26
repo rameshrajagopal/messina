@@ -5,7 +5,7 @@ var ixSearchUrl = "https://api.indix.com/v2.1/search?app_key="+app_key;
 var regex = new RegExp(".*products/(.*)\\\?.*")
 function populateProducts (products) {
   $("#products").empty();
-  products.forEach(function (product) {
+  (products || []).forEach(function (product) {
     regex.lastIndex = 0
     $("#products").append('<div class="col-sm-12 p-card">'+
     '<div class="row">'+
@@ -43,11 +43,11 @@ function populateProductsByType (type, products, responseTime) {
       break;
     case 'thunderbird':
       dom = $('#thunderbird'); 
-      $("#thunderbird_time").text(`( ${responseTime.toFixed(2)} s )`)
+      $("#thunderbird_time").text(`( ${(responseTime || 0).toFixed(2)} s )`)
       break;
   }
   dom.empty();
-  products.forEach(function (product) {
+  (products || []).forEach(function (product) {
     regex.lastIndex = 0
     const mpid = regex.exec(decodeURIComponent(product.detailsUrl || ""))
     dom.append('<div class="col-sm-12 p-card">'+
@@ -176,7 +176,7 @@ function query () {
       $('.btn-search').text(searchText);
       populateProductsByType('api', resp.api.products, resp.api.responseTime)
       populateProductsByType('gatsby', resp.gatsby.products, resp.gatsby.responseTime)
-      populateProductsByType('thunderbird', resp.tb_api.products, resp.tb_api.responseTime)
+      populateProductsByType('thunderbird', (resp.tb_api || {}).products, (resp.tb_api || {}).responseTime)
    })
 }
 

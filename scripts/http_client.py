@@ -16,8 +16,8 @@ class HttpClient(object):
                 raise Exception("Api error" + str(res.status_code))
             return res.json()
         except Exception as e:
-            print e
-        return {}
+            print "httpClient query"
+            return {"result": {"products": []}}
 
     def queryWithBody(self, url, body):
         # print(json.dumps(body))
@@ -27,8 +27,8 @@ class HttpClient(object):
                 raise Exception("Api error " + str(res.status_code))
             return res.json()
         except Exception as e:
-            print e
-        return {}
+            print "httpClient query with body"
+            return {"result": {"products": []}}
 
     def postQuery(self, url, headers, params):
         try:
@@ -38,5 +38,6 @@ class HttpClient(object):
                 raise Exception("Api Error " + str(res.status_code))
             return res.json()
         except Exception as e:
-            print e
-        return {}
+            print "httpClient postQuery"
+            return {"result": {"products": []}}
+        
